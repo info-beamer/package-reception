@@ -1,0 +1,46 @@
+{
+    "name": "Scroller",
+    "options": [{
+        "title": "Scroller",
+        "type": "section"
+    }, {
+        "title": "Font",
+        "ui_width": 3,
+        "name": "font",
+        "type": "font",
+        "doc_link": true,
+        "default": "default-font.ttf"
+    }, {
+        "title": "Font Color",
+        "ui_width": 2,
+        "type": "color",
+        "name": "color",
+        "default": [1,1,1,1]
+    }, {
+        "title": "Scroll Speed",
+        "ui_width": 2,
+        "name": "speed",
+        "type": "select",
+        "options": [
+            [ 50, "Slow"],
+            [100, "Normal"],
+            [140, "Faster"]
+        ],
+        "default": 100
+    }, {
+        "title": "Text Lines",
+        "name": "texts",
+        "type": "list",
+        "itemname": "Text",
+        "items": [{
+            "title": "Text in Scroller",
+            "ui_width": 12,
+            "name": "text",
+            "type": "string",
+            "default": ""
+        }]
+    }],
+    "deferred": [
+        "tile.lua"
+    ]
+}

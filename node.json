@@ -1,0 +1,83 @@
+{
+    "name": "Info Screen",
+    "custom_ui": "config.html",
+    "options": [{
+        "title": "Header",
+        "ui_width": 4,
+        "name": "header",
+        "type": "resource",
+        "valid": ["image"],
+        "default": "example-header.png"
+    }, {
+        "title": "Footer",
+        "ui_width": 4,
+        "name": "footer",
+        "type": "resource",
+        "valid": ["image"],
+        "default": "example-footer.png"
+    }, {
+        "title": "Timezone",
+        "ui_width": 4,
+        "name": "timezone",
+        "type": "string",
+        "default": "UTC"
+    }, {
+        "title": "Time Format",
+        "ui_width": 4,
+        "name": "time_fmt",
+        "type": "string",
+        "default": "%a %H:%M"
+    },
+        
+    {
+        "title": "Pages",
+        "name": "pages",
+        "type": "list",
+        "itemname": "Page",
+        "items": [{
+            "title": "Schedule",
+            "ui_width": 4,
+            "name": "schedule",
+            "type": "json",
+            "default": {
+              "hours": []
+            }
+        }, {
+            "title": "Duration",
+            "ui_width": 4,
+            "name": "duration",
+            "type": "select",
+            "options": [
+                ["5", "5 seconds"],
+                ["10", "10 seconds"],
+                ["15", "15 seconds"],
+                ["20", "20 seconds"]
+            ],
+            "default": "10"
+        }, {
+            "title": "Layout",
+            "ui_width": 4,
+            "name": "layout",
+            "type": "select",
+            "options": [
+                ["fullscreen", "Fullscreen"],
+                ["text-left", "Text Left"],
+                ["text-right", "Text Right"]
+            ],
+            "default": "fullscreen"
+        }, {
+            "title": "Asset",
+            "ui_width": 4,
+            "name": "media",
+            "type": "resource",
+            "valid": ["image", "video"],
+            "default": "empty.png"
+        }, {
+            "title": "Config",
+            "ui_width": 4,
+            "name": "config",
+            "type": "json",
+            "default": {}
+        }]
+    }]
+}

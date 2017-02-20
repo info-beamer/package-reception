@@ -1,0 +1,614 @@
+<html>
+  <!-- 
+
+  You can edit and test this configuration interface locally.
+  Just run (for example):
+
+    python -m SimpleHTTPServer
+
+  and point your browser to
+  
+    http://localhost:8000/config.html
+
+  You can learn more about custom configuration interfaces
+  at https://info-beamer.com/doc/package-reference#customconfigurationinterface
+
+  -->
+  <head>
+    <meta charset="UTF-8">
+    <style>
+      h3 {
+        margin-top: 0;
+        margin-bottom: 30px;
+      }
+      hr {
+        margin: 40px 0;
+      }
+      .header {
+        margin-top: 0;
+      }
+      .schedule {
+        user-select: none;
+        -moz-user-select: none;
+        cursor: pointer;
+      }
+      .day {
+        float: left;
+        width: 80px;
+      }
+      .hour {
+        display: inline-block;
+        width: 25px;
+        padding: 2px 0 2px 0;
+        text-align: center;
+        background-color: #FCC;
+        box-shadow: inset 0px 0px 1px 1px rgba(0,0,0,0.1);
+      }
+      .hour.on {
+        background-color: #CFC;
+      }
+      .popup {
+        position: fixed;
+        top: 0;
+        left: 10px;
+        right: 10px;
+        min-height: 100px;
+        border: 1px solid #ccc;
+        background-color: #fff;
+        box-shadow: 3px 3px 6px 6px rgba(0,0,0,0.1);
+        z-index: 1;
+      }
+      .asset-list {
+        max-height: 500px;
+        overflow-y: scroll;
+        padding-top: 3px;
+        padding-bottom: 3px;
+      }
+      .asset {
+        background-color: #eee;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+      .asset.highlighted {
+        box-shadow: 0px 0px 4px 4px rgba(120,50,0,0.3);
+      }
+      .asset:hover {
+        box-shadow: 0px 0px 4px 4px rgba(0,0,0,0.5);
+      }
+      .page-text {
+        min-height: 15em;
+      }
+      .field-label {
+        color: #aaa;
+        margin-bottom: 2px;
+        margin-top: 0;
+        font-weight: normal;
+      }
+      .checkbox {
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+      .img-thumb {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .img-shadow {
+        box-shadow: 0px 0px 40px 4px rgba(0,0,0,0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id='app'>
+      <div class='row'>
+        <div class='col-xs-12'>
+          <h1 class='header'>Reception</h1>
+        </div>
+        <div class='col-xs-12'>
+          <config-ui></config-ui>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/x-template" id="config-ui">
+      <div>
+        <h4>Settings</h4>
+        <div class='row'>
+          <div class='col-xs-4'>
+            <label class='field-label'>Timezone</label>
+            <timezone-select
+              :timezone="timezone"
+              @timezoneSelected='onTimezoneSelected'>
+            </timezone-select>
+          </div>
+        </div>
+
+        <hr/>
+
+        <h4>Decoration</h4>
+        <div class='row'>
+          <div class='col-xs-3'>
+            <asset-browser 
+              :asset_spec="header"
+              valid="image"
+              title="Select header image"
+              help="For best presentation use an 1920x100 image"
+              @assetSelected='onHeaderSelected'>
+            </asset-browser>
+          </div>
+          <div class='col-xs-9'>
+            <asset-view
+              :asset_spec="header"
+              width=640
+              height=33>
+            </asset-view>
+          </div>
+        </div>
+        <br/>
+        <div class='row'>
+          <div class='col-xs-3'>
+            <asset-browser 
+              :asset_spec="footer"
+              valid="image"
+              title="Select footer image"
+              help="For best presentation use an 1920x50 image"
+              @assetSelected='onFooterSelected'>
+            </asset-browser>
+          </div>
+          <div class='col-xs-9'>
+            <asset-view
+              :asset_spec="footer"
+              width=640
+              height=16>
+            </asset-view>
+          </div>
+        </div>
+
+        <hr/>
+
+        <h4>Pages you want to show</h4>
+        <div class='row'>
+          <div class='col-xs-12'>
+            <button
+              class='btn btn-default'
+              @click="onAdd(-1)">
+              Add
+              <span class='glyphicon glyphicon-plus'></span>
+            </button>
+            <br/>
+            <br/>
+            <div v-if="pages.length == 0" class="alert alert-info">
+              No pages configured. Click <em>Add</em> to add your first page.
+            </div>
+            <div v-for="(page, index) in pages">
+              <page-ui
+                :page="page"
+                :index="index">
+              </page-ui>
+              <button class='btn btn-default' @click="onAdd(index)">
+                Add
+                <span class='glyphicon glyphicon-plus'></span>
+              </button>
+              <br/>
+              <br/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="page-ui">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <layout-select :layout="page.layout" @layoutSelected='onLayoutSelected'>
+          </layout-select>
+          <select
+            class='btn btn-default'
+            @change="onDurationChange">
+            <option
+              class='text-left'
+              v-for="duration in durations"
+              :value="duration.key"
+              :selected="page.duration == duration.key">
+              {{ duration.value }}
+            </option>
+            {{ page.duration }}
+          </select>
+          <button class='btn btn-default' v-if="open" @click="onToggleOpen">
+            Schedule ▴
+          </button>
+          <button class='btn btn-default' v-else @click="onToggleOpen">
+            Schedule ▾
+          </button>
+          <button class='btn btn-danger pull-right' @click="onRemove">
+            Delete
+            <span class='glyphicon glyphicon-trash'></span>
+          </button>
+        </div>
+        <div class="panel-body">
+          <schedule-ui v-if="open" :schedule="page.schedule" @scheduleUpdated='onScheduleUpdate'>
+          </schedule-ui>
+
+          <page-fullscreen
+            v-if="page.layout == 'fullscreen'"
+            :page="page"
+            @configUpdated='onConfigUpdate'
+            @mediaUpdated='onMediaUpdate'>
+          </page-fullscreen>
+
+          <page-text-left
+            v-if="page.layout == 'text-left'"
+            :page="page"
+            @configUpdated='onConfigUpdate'
+            @mediaUpdated='onMediaUpdate'>
+          </page-text-left>
+
+          <page-text-right
+            v-if="page.layout == 'text-right'"
+            :page="page"
+            @configUpdated='onConfigUpdate'
+            @mediaUpdated='onMediaUpdate'>
+          </page-text-right>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="schedule-ui">
+      <div class='panel panel-default'>
+        <div class='panel-body schedule'>
+          <div v-for="day in schedule_ui" @mouseup='onEditStop'>
+            <div class='day' @click='onToggleDay(day.day, day.toggle)'>
+              {{day.name}}
+            </div>
+            <div class='hours'>
+              <span class='hour' :class='{on: hour.on}'
+                v-for="hour in day.hours"
+                @mousedown='onEditStart(hour.index)'
+                @mouseover='onEditToggle(hour.index)'>
+                {{hour.hour}}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="page-fullscreen">
+      <div class='row'>
+        <div class='col-xs-12'>
+          <h3>Fullscreen Image/Video view</h3>
+          <asset-browser 
+            :asset_spec="page.media"
+            valid="image,video"
+            title="Select Fullscreen Asset"
+            help="For best presentation use an 1920x930 image"
+            @assetSelected='onAssetSelected'>
+          </asset-browser>
+        </div>
+        <div class='col-xs-12'>
+          <br/>
+          <asset-view
+            :asset_spec="page.media"
+            :shadow=true
+            width=640
+            height=340>
+          </asset-view>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="page-text-right">
+      <div class='row'>
+        <div class='col-xs-12'>
+          <h3>Image/Video + Text</h3>
+        </div>
+        <div class='col-xs-6'>
+          <asset-view
+            :asset_spec="page.media"
+            :shadow=true
+            width=320
+            height=310>
+          </asset-view>
+        </div>
+        <div class='col-xs-6'>
+          <div class='row'>
+            <div class='col-xs-6'>
+              <asset-browser 
+                :asset_spec="page.media"
+                valid="image,video"
+                title="Select Image/Video"
+                @assetSelected='onAssetSelected'>
+              </asset-browser>
+            </div>
+            <div class='col-xs-6'>
+              <div class="checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    :checked="page.config.kenburns"
+                    @change="onUpdateKenBurns">
+                    Ken Burns
+                </label>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class='row'>
+            <div class='col-xs-6'>
+              <label class='field-label'>Foreground</label>
+              <input
+                class="form-control"
+                type="color"
+                :value="page.config.foreground || '#FFFFFF'"
+                @change="onUpdateForeground">
+            </div>
+            <div class='col-xs-6'>
+              <label class='field-label'>Background</label>
+              <input
+                class="form-control"
+                type="color"
+                :value="page.config.background || '#000000'"
+                @change="onUpdateBackground">
+            </div>
+          </div>
+          <!--
+          <br/>
+          <input
+            class="form-control"
+            type='text'
+            placeholder="Page Title"
+            :value="page.config.title"
+            @change="onUpdateTitle">
+          -->
+          <br/>
+          <textarea
+            placeholder="Side Text"
+            class="form-control page-text"
+            :style="{
+              'background-color': page.config.background || '#000000',
+              'color': page.config.foreground || '#ffffff',
+            }"
+            @change="onUpdateText"
+            @keyup="onUpdateText"
+            @paste="onUpdateText">{{page.config.text}}</textarea>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="page-text-left">
+      <div class='row'>
+        <div class='col-xs-12'>
+          <h3>Image/Video + Text</h3>
+        </div>
+        <div class='col-xs-6'>
+          <div class='row'>
+            <div class='col-xs-6'>
+              <asset-browser 
+                :asset_spec="page.media"
+                valid="image,video"
+                title="Select Image/Video"
+                @assetSelected='onAssetSelected'>
+              </asset-browser>
+            </div>
+            <div class='col-xs-6'>
+              <div class="checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    :checked="page.config.kenburns"
+                    @change="onUpdateKenBurns">
+                    Ken Burns
+                </label>
+              </div>
+            </div>
+          </div>
+          <br/>
+          <div class='row'>
+            <div class='col-xs-6'>
+              <label class='field-label'>Foreground</label>
+              <input
+                class="form-control"
+                type="color"
+                :value="page.config.foreground || '#FFFFFF'"
+                @change="onUpdateForeground">
+            </div>
+            <div class='col-xs-6'>
+              <label class='field-label'>Background</label>
+              <input
+                class="form-control"
+                type="color"
+                :value="page.config.background || '#000000'"
+                @change="onUpdateBackground">
+            </div>
+          </div>
+          <!--
+          <br/>
+          <input
+            class="form-control"
+            type='text'
+            placeholder="Page Title"
+            :value="page.config.title"
+            @change="onUpdateTitle">
+          -->
+          <br/>
+          <textarea
+            placeholder="Side Text"
+            class="form-control page-text"
+            :style="{
+              'background-color': page.config.background || '#000000',
+              'color': page.config.foreground || '#ffffff',
+            }"
+            @change="onUpdateText"
+            @keyup="onUpdateText"
+            @paste="onUpdateText">{{page.config.text}}</textarea>
+        </div>
+        <div class='col-xs-6'>
+          <asset-view
+            :asset_spec="page.media"
+            :shadow=true
+            width=320
+            height=310>
+          </asset-view>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="asset-browser">
+      <div>
+        <button class='btn btn-default' v-if="open" @click="onToggleOpen">
+          {{title}} ▴
+        </button>
+        <button class='btn btn-default' v-else @click="onToggleOpen">
+          {{title}} ▾
+        </button>
+        <div
+          v-if="open"
+          class='popup panel panel-default'
+          :style="{top: top + 'px'}">
+          <div class="panel-heading">
+            Asset Select
+            <button class='btn btn-sm btn-default' @click='onSort("filename")'>
+              By Filename
+            </button>
+            <button class='btn btn-sm btn-default' @click='onSort("age")'>
+              By Age
+            </button>
+            <div
+              @click="onClose"
+              class='btn btn-md pull-right'>
+              <span class='glyphicon glyphicon-remove'></span>
+            </div>
+            <div v-if='help' class='btn btn-sm pull-right'>
+              <span class='glyphicon glyphicon-info-sign'></span>
+              {{help}}
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="row asset-list">
+              <div class="col-xs-2" v-for="asset in assets">
+                <img
+                  class='asset'
+                  :class="{highlighted: highlight && highlight.id == asset.id}"
+                  :src="asset.thumb"
+                  @click="onSelect(asset.id)"
+                  @mouseover="onHighlight(asset.id)">
+                </img>
+              </div>
+            </div>
+          </div>
+          <div class="panel-footer">
+            {{info}}
+          </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="layout-select">
+      <select
+        class='btn btn-default'
+        @change="onSelect">
+        <option
+          class='text-left'
+          v-for="option in options"
+          :value="option.value"
+          :selected="option.value == layout">
+          {{ option.text }}
+        </option>
+      </select>
+    </script>
+
+    <script type="text/x-template" id="timezone-select">
+      <select
+        class='btn btn-default'
+        @change="onSelect">
+        <option
+          class='text-left'
+          v-for="tz in timezones"
+          :key="tz"
+          :selected="timezone == tz">
+          {{ tz }}
+        </option>
+      </select>
+    </script>
+
+    <script type="text/x-template" id="asset-view">
+      <div>
+        <img
+          v-if='asset_info'
+          :class="{
+             'img-shadow': shadow,
+             'img-thumb': true,
+             'img-responsive': true,
+          }"
+          :style="{
+            'width': width || 256,
+            'height': height || 256,
+          }"
+          :src="thumb_url">
+        </img>
+      </div>
+    </script>
+
+    <script>
+      MOCK_ASSETS = {
+        1: {
+          id: 1,
+          thumb: "screenshot.jpg",
+          filetype: 'image',
+          filename: 'zzzz.png',
+          uploaded: 1469707145,
+        },
+        2: {
+          id: 2,
+          thumb: "package.png",
+          filetype: 'image',
+          filename: 'AAAz.png',
+          uploaded: 1469007145,
+        }
+      }
+      for (var i = 0; i < 30; i++) {
+        MOCK_ASSETS[i+2] = {
+          id: i+2,
+          thumb: "screenshot.jpg",
+          filetype: 'image',
+          filename: 'AAAa' + i + '.png',
+          uploaded: 1469007145+i,
+        }
+      }
+      MOCK_NODE_ASSETS = {
+        "package.png": {
+          id: "package.png",
+          thumb: 'package.png',
+          filetype: 'image',
+          filename: 'package.png',
+        }
+      },
+      MOCK_CONFIG = {
+        header: 1,
+        footer: "package.png",
+        timezone: "Europe/Berlin",
+        pages: [{
+          layout: 'text-right',
+          schedule: {
+            hours: [],
+          },
+          config: {},
+          media: "package.png",
+          duration: 10,
+        }, {
+          layout: 'fullscreen',
+          schedule: {
+            hours: [],
+          },
+          config: {},
+          media: 1,
+          duration: 5,
+        }]
+      }
+    </script>
+    <script src="hosted.js"></script>
+    <script src="vue.js"></script>
+    <script src="vuex.js"></script>
+    <script src="timezones.js"></script>
+    <script src="config.js"></script>
+  </body>
+</html>

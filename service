@@ -1,0 +1,49 @@
+#!/usr/bin/python2.7
+import time
+import sys
+import pytz
+from datetime import datetime, timedelta
+from calendar import timegm
+from hosted import CONFIG, NODE
+
+CONFIG.restart_on_update()
+
+tz = pytz.timezone(CONFIG['timezone'])
+
+def current_time():
+    now = datetime.utcnow()
+    timestamp = timegm(now.timetuple()) + now.microsecond / 1000000.
+    return now, timestamp
+
+def send_clock(now, ts):
+    now = now.replace(tzinfo=pytz.utc)
+    now = now.astimezone(tz)
+    now = now.replace(tzinfo=None)
+
+    since_midnight = (
+        now -
+        now.replace(hour=0, minute=0, second=0, microsecond=0)
+    )
+    since_midnight = since_midnight.seconds + since_midnight.microseconds / 1000000.
+
+    monday = (now - timedelta(days = now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+    since_monday = now - monday
+    since_monday = since_monday.days * 86400 + since_monday.seconds + since_monday.microseconds / 1000000.
+
+    NODE.send('/clock/since_midnight:%f' % since_midnight)
+    NODE.send('/clock/since_monday:%f' % since_monday)
+    NODE.send('/clock/human:%s' % now.strftime(CONFIG['time_fmt']))
+
+def main():
+    while 1:
+        now, ts = current_time()
+        if now.year < 2000:
+            print >>sys.stderr, "too soon"
+            time.sleep(1)
+            continue
+
+        send_clock(now, ts)
+        time.sleep(0.5)
+
+if __name__ == "__main__":
+    main()
