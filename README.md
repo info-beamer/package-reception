@@ -4,7 +4,7 @@ This package allows you to display images, videos and text next to a text scroll
 All offered with an easy configuration interface that allows you to schedule your
 content.
 
-[![Import](https://cdn.infobeamer.com/s/img/import.png)](https://info-beamer.com/use?url=https://github.com/info-beamer/package-hd-player)
+[![Import](https://cdn.infobeamer.com/s/img/import.png)](https://info-beamer.com/use?url=https://github.com/info-beamer/package-reception)
 
 ## Configuration Screen
 
