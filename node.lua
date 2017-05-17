@@ -824,6 +824,7 @@ local function playlist()
             return Video{
                 fade_time = 0,
                 asset_name = media.asset_name,
+                raw = true,
             }
         end
     end
