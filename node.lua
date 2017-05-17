@@ -781,10 +781,10 @@ local function playlist()
         return 0, 100, WIDTH/2, HEIGHT-50
     end
 
-    local function add_info_bar(page)
+    local function add_info_bar(page, duration)
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Image{
                 fade_time = 0,
                 asset_name = config.footer.asset_name,
@@ -793,7 +793,7 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = TileChild{
                 asset_name = 'scroller',
                 blend = 0,
@@ -802,7 +802,7 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = TimeTile{
                 x = 0,
                 y = 2,
@@ -829,21 +829,35 @@ local function playlist()
         end
     end
 
+    local function get_duration(page)
+        local duration = 10
+        if page.duration == "auto" then
+            if page.media.metadata.duration then
+                duration = tonumber(page.media.metadata.duration)
+            end
+        else
+            duration = tonumber(page.duration)
+        end
+        return duration
+    end
+
     local function page_fullscreen(page) 
+        local duration = get_duration(page)
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = image_or_video_player(page.media),
             coord = tile_fullscreen,
         }
-        add_info_bar(page)
-        offset = offset + page.duration
+        add_info_bar(page, duration)
+        offset = offset + duration
     end
 
     local function page_text_left(page)
+        local duration = get_duration(page)
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Image{
                 fade_time = 0,
                 asset_name = config.header.asset_name,
@@ -852,13 +866,13 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = image_or_video_player(page.media, page.config.kenburns),
             coord = tile_right,
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Flat{
                 fade_time = 0,
                 color = page.config.background or "#000000",
@@ -867,7 +881,7 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Markup{
                 text = page.config.text or "",
                 width = WIDTH/2,
@@ -876,14 +890,15 @@ local function playlist()
             },
             coord = tile_left,
         }
-        add_info_bar(page)
-        offset = offset + page.duration
+        add_info_bar(page, duration)
+        offset = offset + duration
     end
 
     local function page_text_right(page)
+        local duration = get_duration(page)
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Image{
                 fade_time = 0,
                 asset_name = config.header.asset_name,
@@ -892,13 +907,13 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = image_or_video_player(page.media, page.config.kenburns),
             coord = tile_left,
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Flat{
                 fade_time = 0,
                 color = page.config.background or "#000000",
@@ -907,7 +922,7 @@ local function playlist()
         }
         add{
             offset = offset,
-            duration = page.duration,
+            duration = duration,
             fn = Markup{
                 text = page.config.text or "",
                 width = WIDTH/2,
@@ -916,8 +931,8 @@ local function playlist()
             },
             coord = tile_right,
         }
-        add_info_bar(page)
-        offset = offset + page.duration
+        add_info_bar(page, duration)
+        offset = offset + duration
     end
 
     local layouts = {
@@ -937,6 +952,8 @@ local function playlist()
             layouts[page.layout](page)
         end
     end
+
+    -- pp(playlist)
 
     return playlist
 end

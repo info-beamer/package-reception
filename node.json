@@ -48,6 +48,7 @@
             "name": "duration",
             "type": "select",
             "options": [
+                ["auto", "Automatic"],
                 ["5", "5 seconds"],
                 ["10", "10 seconds"],
                 ["15", "15 seconds"],

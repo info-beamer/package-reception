@@ -142,6 +142,8 @@ Vue.component('page-ui', {
   data: () => ({
     open: false,
     durations: [{
+      key: "auto", value: "Automatic",
+    }, {
       key: "5", value: "5 seconds",
     }, {
       key: "10", value: "10 seconds",
