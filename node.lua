@@ -85,7 +85,7 @@ end
 
 local function split(str, delim)
     local result, pat, last = {}, "(.-)" .. delim .. "()", 1
-    for part, pos in string.gfind(str, pat) do
+    for part, pos in string.gmatch(str, pat) do
         result[#result+1] = part
         last = pos
     end
