@@ -105,3 +105,9 @@ the left side of the configuration screen. You'll see the
 configuration interface for the scroller. You can add your
 own text here by clicking on the *Add Text* button and then
 adding your text in the new row.
+
+## Changelog
+
+### Version 0.2
+
+ * Added support for the "automatic duration" setting per page.
