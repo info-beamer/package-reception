@@ -1,6 +1,6 @@
 {
     "name": "Reception Screen",
-    "author": "Florian Wesch <fw@dividuum.de>",
+    "author": "Florian Wesch <fw@info-beamer.com>",
     "desc": "Shows textual/image and video information for a reception-style information screen.",
     "repository": "https://github.com/info-beamer/package-reception",
     "version": "0.2"
