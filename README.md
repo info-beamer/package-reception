@@ -29,6 +29,8 @@ are used by the clock. The remaining pixels show the scrolling text.
 You can use the included *example-footer.png* and *example-header.png* can
 be used to test.
 
+If you want to play audio for video files, select the *audio* checkbox.
+
 ## Adding Pages
 
 Now it is time to add your content. You can add as many pages as you want.
@@ -107,6 +109,12 @@ own text here by clicking on the *Add Text* button and then
 adding your text in the new row.
 
 ## Changelog
+
+### Version 0.3
+
+ * Added the ability to enable audio output for all video files.
+   If you enable this option, be sure that your device actually outputs
+   audio to the correct [audio target](https://info-beamer.com/doc/device-configuration#specifyaudiotarget).
 
 ### Version 0.2
 
