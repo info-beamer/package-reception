@@ -36,14 +36,8 @@ const store = new Vuex.Store({
         state.config.pages.splice(0, 0, new_page);
       }
     },
-    set_timezone(state, timezone) {
-      state.config.timezone = timezone;
-    },
-    set_header(state, asset_spec) {
-      state.config.header = asset_spec;
-    },
-    set_footer(state, asset_spec) {
-      state.config.footer = asset_spec;
+    set_option(state, {key, value}) {
+      Vue.set(state.config, key, value);
     },
     set_layout(state, {index, layout}) {
       state.config.pages[index].layout = layout;
@@ -70,21 +64,13 @@ const store = new Vuex.Store({
       context.commit('init', values);
     },
     remove_page (context, index) {
-      console.log("removing ", index);
       context.commit('remove_page', index);
     },
     create_page (context, index) {
-      console.log("appending new page");
       context.commit('create_page', index);
     },
-    set_timezone(context, timezone) {
-      context.commit('set_timezone', timezone);
-    },
-    set_header(context, asset_spec) {
-      context.commit('set_header', asset_spec);
-    },
-    set_footer(context, asset_spec) {
-      context.commit('set_footer', asset_spec);
+    set_option(context, update) {
+      context.commit('set_option', update);
     },
     set_layout(context, update) {
       context.commit('set_layout', update);
@@ -107,31 +93,27 @@ const store = new Vuex.Store({
 Vue.component('config-ui', {
   template: '#config-ui',
   computed: {
-    timezone() {
-      return this.$store.state.config.timezone;
+    config() {
+      return this.$store.state.config;
     },
-    header() {
-      return this.$store.state.config.header;
-    },
-    footer() {
-      return this.$store.state.config.footer;
+    audio: {
+      get() {
+        return this.config.audio;
+      },
+      set(value) {
+        this.$store.dispatch('set_option', {key: 'audio', value: value});
+      },
     },
     pages() {
-      return this.$store.state.config.pages;
+      return this.config.pages;
     },
   },
   methods: {
     onAdd(index) {
       this.$store.dispatch('create_page', index);
     },
-    onTimezoneSelected(timezone) {
-      this.$store.dispatch('set_timezone', timezone);
-    },
-    onHeaderSelected(asset_spec) {
-      this.$store.dispatch('set_header', asset_spec);
-    },
-    onFooterSelected(asset_spec) {
-      this.$store.dispatch('set_footer', asset_spec);
+    onSetConfig(key, value) {
+      this.$store.dispatch('set_option', {key: key, value: value});
     },
   }
 })

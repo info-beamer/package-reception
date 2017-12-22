@@ -12,6 +12,8 @@ local min, max, abs, floor = math.min, math.max, math.abs, math.floor
 
 local IDLE_ASSET = "empty.png"
 
+local node_config = {}
+
 local overlay_debug = false
 local font_regl = resource.load_font "default-font.ttf"
 local font_bold = resource.load_font "default-font-bold.ttf"
@@ -384,7 +386,7 @@ local function Video(config)
     local file = resource.open_file(config.asset_name)
 
     return function(starts, ends)
-        wait_t(starts - 2)
+        wait_t(starts - 1)
 
         local fade_time = config.fade_time or 0.5
 
@@ -394,6 +396,7 @@ local function Video(config)
             vid = raw.load_video{
                 file = file,
                 paused = true,
+                audio = node_config.audio,
             }
             vid:layer(-10)
 
@@ -407,6 +410,7 @@ local function Video(config)
             vid = resource.load_video{
                 file = file,
                 paused = true,
+                audio = node_config.audio,
             }
 
             for now, x1, y1, x2, y2 in from_to(starts, ends) do
@@ -736,8 +740,6 @@ local function Scheduler(playlist_source, job_queue)
     }
 end
 
-local config = {}
-
 local function playlist()
     local playlist = {}
     local how = clock.hour_of_week()
@@ -787,7 +789,7 @@ local function playlist()
             duration = duration,
             fn = Image{
                 fade_time = 0,
-                asset_name = config.footer.asset_name,
+                asset_name = node_config.footer.asset_name,
             },
             coord = tile_bottom,
         }
@@ -860,7 +862,7 @@ local function playlist()
             duration = duration,
             fn = Image{
                 fade_time = 0,
-                asset_name = config.header.asset_name,
+                asset_name = node_config.header.asset_name,
             },
             coord = tile_top,
         }
@@ -901,7 +903,7 @@ local function playlist()
             duration = duration,
             fn = Image{
                 fade_time = 0,
-                asset_name = config.header.asset_name,
+                asset_name = node_config.header.asset_name,
             },
             coord = tile_top,
         }
@@ -941,8 +943,8 @@ local function playlist()
         ["text-right"] = page_text_right;
     }
 
-    for idx = 1, #config.pages do
-        local page = config.pages[idx]
+    for idx = 1, #node_config.pages do
+        local page = node_config.pages[idx]
         -- hours might be empty, in which case the hour
         -- should default to true. So explicitly test
         -- for unscheduled hours.
@@ -962,7 +964,7 @@ local job_queue = JobQueue()
 local scheduler = Scheduler(playlist, job_queue)
 
 util.file_watch("config.json", function(raw)
-    config = json.decode(raw)
+    node_config = json.decode(raw)
 end)
 
 function node.render()

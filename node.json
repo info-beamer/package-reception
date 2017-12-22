@@ -27,6 +27,12 @@
         "name": "time_fmt",
         "type": "string",
         "default": "%a %H:%M"
+    }, {
+        "title": "Audio",
+        "ui_width": 4,
+        "name": "audio",
+        "type": "boolean",
+        "default": false
     },
         
     {

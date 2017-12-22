@@ -113,13 +113,18 @@
     <script type="text/x-template" id="config-ui">
       <div>
         <h4>Settings</h4>
-        <div class='row'>
+        <div class='row form-group'>
           <div class='col-xs-4'>
             <label class='field-label'>Timezone</label>
             <timezone-select
-              :timezone="timezone"
-              @timezoneSelected='onTimezoneSelected'>
+              :timezone="config.timezone"
+              @timezoneSelected='onSetConfig("timezone", $event)'>
             </timezone-select>
+          </div>
+          <div class='col-xs-4'>
+            <label class='field-label'>Audio</label>
+            <br/>
+            <input type="checkbox" v-model="audio"/>
           </div>
         </div>
 
@@ -129,16 +134,16 @@
         <div class='row'>
           <div class='col-xs-3'>
             <asset-browser 
-              :asset_spec="header"
+              :asset_spec="config.header"
               valid="image"
               title="Select header image"
               help="For best presentation use an 1920x100 image"
-              @assetSelected='onHeaderSelected'>
+              @assetSelected='onSetConfig("header", $event)'>
             </asset-browser>
           </div>
           <div class='col-xs-9'>
             <asset-view
-              :asset_spec="header"
+              :asset_spec="config.header"
               width=640
               height=33>
             </asset-view>
@@ -148,16 +153,16 @@
         <div class='row'>
           <div class='col-xs-3'>
             <asset-browser 
-              :asset_spec="footer"
+              :asset_spec="config.footer"
               valid="image"
               title="Select footer image"
               help="For best presentation use an 1920x50 image"
-              @assetSelected='onFooterSelected'>
+              @assetSelected='onSetConfig("footer", $event)'>
             </asset-browser>
           </div>
           <div class='col-xs-9'>
             <asset-view
-              :asset_spec="footer"
+              :asset_spec="config.footer"
               width=640
               height=16>
             </asset-view>
