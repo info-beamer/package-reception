@@ -1,6 +1,14 @@
 {
     "name": "Info Screen",
     "custom_ui": "config.html",
+    "optional": [
+      "COPYRIGHT",
+      ".*.js",
+      ".*.html",
+      ".*.md",
+      ".*.png",
+      ".*.jpg"
+    ],
     "options": [{
         "title": "Header",
         "ui_width": 4,
@@ -47,6 +55,16 @@
             "type": "json",
             "default": {
               "hours": []
+            }
+        }, {
+            "title": "Interaction",
+            "ui_width": 4,
+            "name": "interaction",
+            "type": "json",
+            "default": {
+              "key": "",
+              "name": "",
+              "duration": "auto"
             }
         }, {
             "title": "Duration",

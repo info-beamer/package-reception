@@ -89,6 +89,10 @@
         margin-top: 5px;
         margin-bottom: 5px;
       }
+      .control-inline {
+        display: inline;
+        width: 120px;
+      }
       .img-thumb {
         margin-left: auto;
         margin-right: auto;
@@ -220,10 +224,10 @@
             {{ page.duration }}
           </select>
           <button class='btn btn-default' v-if="open" @click="onToggleOpen">
-            Schedule ▴
+            Schedule/Interaction ▴
           </button>
           <button class='btn btn-default' v-else @click="onToggleOpen">
-            Schedule ▾
+            Schedule/Interaction ▾
           </button>
           <button class='btn btn-danger pull-right' @click="onRemove">
             Delete
@@ -231,8 +235,11 @@
           </button>
         </div>
         <div class="panel-body">
-          <schedule-ui v-if="open" :schedule="page.schedule" @scheduleUpdated='onScheduleUpdate'>
+          <schedule-ui v-if="open" :schedule="page.schedule" @onChange='onScheduleUpdate'>
           </schedule-ui>
+
+          <interaction-ui v-if="open" :interaction="page.interaction || {}" @onChange='onInteractionUpdate'>
+          </interaction-ui>
 
           <page-fullscreen
             v-if="page.layout == 'fullscreen'"
@@ -274,6 +281,54 @@
               </span>
             </div>
           </div>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/x-template" id="interaction-ui">
+      <div class='panel panel-default'>
+        <div class='panel-body'>
+          On
+
+          <select
+            class='btn btn-default'
+            @change="onSelectKey">
+            <option
+              class='text-left'
+              v-for="key in keys"
+              :value="key.key"
+              :selected="key.key == interaction.key">
+              {{ key.value }}
+            </option>
+          </select>
+
+          <span v-if="interaction.key != ''">
+            show this page
+
+            <select
+              class='btn btn-default'
+              @change="onSelectDuration">
+              <option
+                class='text-left'
+                v-for="duration in durations"
+                :value="duration.key"
+                :selected="duration.key == interaction.duration">
+                {{ duration.value }}
+              </option>
+            </select>
+
+            and overlay
+
+            <input
+              type="text"
+              class="form-control control-inline"
+              placeholder="nothing"
+              @change="onTitle"
+              :value="interaction.title"
+            />
+
+            in the corner.
+          </span>
         </div>
       </div>
     </script>
@@ -597,6 +652,11 @@
           schedule: {
             hours: [],
           },
+          interaction: {
+            key: "e",
+            title: "",
+            duration: "auto",
+          },
           config: {},
           media: "package.png",
           duration: "10",
@@ -604,6 +664,11 @@
           layout: 'fullscreen',
           schedule: {
             hours: [],
+          },
+          interaction: {
+            key: "z",
+            title: "",
+            duration: "auto",
           },
           config: {},
           media: 1,

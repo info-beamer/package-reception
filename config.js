@@ -25,7 +25,12 @@ const store = new Vuex.Store({
         config: {},
         schedule: {
           hours: [],
-        }
+        },
+        interaction: {
+          key: '',
+          title: '',
+          duration: 'auto',
+        },
       }
       if (index != -1) {
         var last_page = state.config.pages[index];
@@ -41,6 +46,9 @@ const store = new Vuex.Store({
     },
     set_layout(state, {index, layout}) {
       state.config.pages[index].layout = layout;
+    },
+    set_interaction(state, {index, interaction}) {
+      state.config.pages[index].interaction = interaction;
     },
     set_schedule_hour(state, {index, hour, on}) {
       var hours = state.config.pages[index].schedule.hours;
@@ -77,6 +85,9 @@ const store = new Vuex.Store({
     },
     set_schedule_hour (context, update) {
       context.commit('set_schedule_hour', update);
+    },
+    set_interaction(context, update) {
+      context.commit('set_interaction', update);
     },
     set_media(context, update) {
       context.commit('set_media', update);
@@ -123,17 +134,13 @@ Vue.component('page-ui', {
   props: ["page", "index"],
   data: () => ({
     open: false,
-    durations: [{
-      key: "auto", value: "Automatic",
-    }, {
-      key: "5", value: "5 seconds",
-    }, {
-      key: "10", value: "10 seconds",
-    }, {
-      key: "15", value: "15 seconds",
-    }, {
-      key: "20", value: "20 seconds",
-    }]
+    durations: [
+      {key: "auto", value: "Automatic"},
+      {key: "5",    value: "5 seconds"},
+      {key: "10",   value: "10 seconds"},
+      {key: "15",   value: "15 seconds"},
+      {key: "20",   value: "20 seconds"},
+    ]
   }),
   methods: {
     onRemove() {
@@ -144,6 +151,12 @@ Vue.component('page-ui', {
         index: this.index,
         hour: hour,
         on: on,
+      });
+    },
+    onInteractionUpdate(interaction) {
+      this.$store.dispatch('set_interaction', {
+        index: this.index,
+        interaction: interaction,
       });
     },
     onLayoutSelected(layout) {
@@ -381,7 +394,7 @@ Vue.component('schedule-ui', {
       if (on == undefined)
         on = true;
       this.set = !on;
-      this.$emit('scheduleUpdated', index, this.set);
+      this.$emit('onChange', index, this.set);
     },
     onEditStop() {
       this.edit = false;
@@ -389,13 +402,105 @@ Vue.component('schedule-ui', {
     onToggleDay(day, on) {
       var offset = day * 24;
       for (var i = 0; i < 24; i++) {
-        this.$emit('scheduleUpdated', offset+i, on);
+        this.$emit('onChange', offset+i, on);
       }
     },
     onEditToggle(index) {
       if (this.edit) {
-        this.$emit('scheduleUpdated', index, this.set);
+        this.$emit('onChange', index, this.set);
       }
+    },
+  }
+})
+
+Vue.component('interaction-ui', {
+  template: '#interaction-ui',
+  props: ['interaction'],
+  data: () => ({
+    keys: [
+      {key: "", value: "(no key trigger)"},
+      {key: "a", value: "key 'A'"},
+      {key: "b", value: "key 'B'"},
+      {key: "c", value: "key 'C'"},
+      {key: "d", value: "key 'D'"},
+      {key: "e", value: "key 'E'"},
+      {key: "f", value: "key 'F'"},
+      {key: "g", value: "key 'G'"},
+      {key: "h", value: "key 'H'"},
+      {key: "i", value: "key 'I'"},
+      {key: "j", value: "key 'J'"},
+      {key: "k", value: "key 'K'"},
+      {key: "l", value: "key 'L'"},
+      {key: "m", value: "key 'M'"},
+      {key: "n", value: "key 'N'"},
+      {key: "o", value: "key 'O'"},
+      {key: "p", value: "key 'P'"},
+      {key: "q", value: "key 'Q'"},
+      {key: "r", value: "key 'R'"},
+      {key: "s", value: "key 'S'"},
+      {key: "t", value: "key 'T'"},
+      {key: "u", value: "key 'U'"},
+      {key: "v", value: "key 'V'"},
+      {key: "w", value: "key 'W'"},
+      {key: "x", value: "key 'X'"},
+      {key: "y", value: "key 'Y'"},
+      {key: "z", value: "key 'Z'"},
+
+      {key: "0", value: "key '0'"},
+      {key: "1", value: "key '1'"},
+      {key: "2", value: "key '2'"},
+      {key: "3", value: "key '3'"},
+      {key: "4", value: "key '4'"},
+      {key: "5", value: "key '5'"},
+      {key: "6", value: "key '6'"},
+      {key: "7", value: "key '7'"},
+      {key: "8", value: "key '8'"},
+      {key: "9", value: "key '9'"},
+
+      {key: "kp0", value: "numpad 0"},
+      {key: "kp1", value: "numpad 1"},
+      {key: "kp2", value: "numpad 2"},
+      {key: "kp3", value: "numpad 3"},
+      {key: "kp4", value: "numpad 4"},
+      {key: "kp5", value: "numpad 5"},
+      {key: "kp6", value: "numpad 6"},
+      {key: "kp7", value: "numpad 7"},
+      {key: "kp8", value: "numpad 8"},
+      {key: "kp9", value: "numpad 9"},
+
+      {key: "f1", value: "F1"},
+      {key: "f2", value: "F2"},
+      {key: "f3", value: "F3"},
+      {key: "f4", value: "F4"},
+      {key: "f5", value: "F5"},
+      {key: "f6", value: "F6"},
+      {key: "f7", value: "F7"},
+      {key: "f8", value: "F8"},
+      {key: "f9", value: "F9"},
+      {key: "f10",value: "F10"},
+      {key: "f11",value: "F11"},
+      {key: "f12",value: "F12"},
+    ],
+    durations: [
+      {key: "auto",    value: "as configured"},
+      {key: "forever", value: "forever"},
+    ],
+  }),
+  methods: {
+    onSelectKey(evt) {
+      this.$emit('onChange', Object.assign({}, this.interaction, {
+        key: evt.target.value
+      }));
+    },
+    onSelectDuration(evt) {
+      this.$emit('onChange', Object.assign({}, this.interaction, {
+        duration: evt.target.value
+      }));
+    },
+    onTitle(evt) {
+      this.$emit('onChange', Object.assign({}, this.interaction, {
+        title: evt.target.value
+      }));
     },
   }
 })

@@ -1,14 +1,32 @@
 #!/usr/bin/python2.7
+import os
+import traceback
 import time
 import sys
 import pytz
+import json
+import threading
 from datetime import datetime, timedelta
 from calendar import timegm
+from select import select
+from evdev import ecodes, InputDevice, list_devices
+from evdev.events import KeyEvent
 from hosted import CONFIG, NODE
 
 CONFIG.restart_on_update()
 
 tz = pytz.timezone(CONFIG['timezone'])
+devices = {}
+
+def update_devices():
+    new = set(list_devices("/dev/input/"))
+    old = set(devices.keys())
+
+    for device_name in new - old:
+        devices[device_name] = InputDevice(device_name)
+
+    for device_name in old - new:
+        del devices[device_name]
 
 def current_time():
     now = datetime.utcnow()
@@ -34,16 +52,55 @@ def send_clock(now, ts):
     NODE.send('/clock/since_monday:%f' % since_monday)
     NODE.send('/clock/human:%s' % now.strftime(CONFIG['time_fmt']))
 
-def main():
-    while 1:
-        now, ts = current_time()
-        if now.year < 2000:
-            print >>sys.stderr, "too soon"
-            time.sleep(1)
-            continue
+def device_event(event):
+    if event.type != ecodes.EV_KEY:
+        return
 
-        send_clock(now, ts)
-        time.sleep(0.5)
+    NODE.send('/input/event:%s' % json.dumps(dict(
+        key = ecodes.KEY[event.code].replace("KEY_", "").lower(),
+        action = {
+            KeyEvent.key_up: "up",
+            KeyEvent.key_down: "down",
+            KeyEvent.key_hold: "hold",
+        }[event.value],
+    )))
+
+def monitor_input():
+    update_devices()
+    print devices
+    r, w, e = select(devices.values(), [], [], 1)
+    for device in r:
+        try:
+            for ev in device.read():
+                device_event(ev)
+        except IOError:
+            # device disconnected
+            pass
+
+def send_time():
+    now, ts = current_time()
+    if now.year < 2000:
+        print >>sys.stderr, "too soon"
+        time.sleep(1)
+        return
+
+    send_clock(now, ts)
+    time.sleep(0.5)
+
+def run_in_thread(fn):
+    def wrap():
+        try:
+            while 1:
+                fn()
+        except Exception:
+            traceback.print_exc()
+            os._exit(1)
+    thread = threading.Thread(target=wrap)
+    thread.daemon = True
+    thread.start()
 
 if __name__ == "__main__":
-    main()
+    run_in_thread(send_time)
+    run_in_thread(monitor_input)
+
+    while 1: time.sleep(1000)

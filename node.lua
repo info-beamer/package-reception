@@ -466,6 +466,22 @@ local function TimeTile(config)
     end
 end
 
+local function TextTile(config)
+    return function(starts, ends)
+        local font = config.font
+        local r, g, b = config.r, config.g, config.b
+        local flat = resource.create_colored_texture(r, g, b, 1)
+        for now, x1, y1, x2, y2 in from_to(starts, ends) do
+            local size = y2 - y1 - 8
+            local w = font:width(config.text, size)
+            x1 = x2 - w - 40
+            flat:draw(x1, y1, x2, y2)
+            config.font:write(x1+20, y1+4, config.text, size, 0,0,0,1)
+        end
+        flat:dispose()
+    end
+end
+
 local function Markup(config)
     local text = config.text
     local width = config.width
@@ -623,9 +639,9 @@ local function JobQueue()
         local co = coroutine.create(fn)
         local ok, again = coroutine.resume(co, starts, ends)
         if not ok then
-            return error(("%s\n%s\ninside coroutine %s started by"):format(
-                again, debug.traceback(job.co), job)
-            )
+            return error(("%s\n%s\ninside coroutine started by"):format(
+                again, debug.traceback(co)
+            ))
         elseif not again then
             return
         end
@@ -673,28 +689,28 @@ local function JobQueue()
         end
     end
 
+    local function flush()
+        for idx = #jobs,1,-1 do
+            table.remove(jobs, idx)
+        end
+        node.gc()
+    end
+
     return {
         tick = tick;
         add = add;
+        flush = flush;
     }
 end
 
 
 local function Scheduler(playlist_source, job_queue)
-    local global_synced = false
     local scheduled_until = clock.unix()
     local next_schedule = 0
 
-    local TOLERANCE = 0.05
     local SCHEDULE_LOOKAHEAD = 2
 
-    local function tick(now)
-        if now < next_schedule then
-            return
-        end
-
-        local playlist = playlist_source()
-
+    local function enqueue_playlist(playlist)
         -- get total playlist duration
         local total_duration = 0
         for idx = 1, #playlist do
@@ -709,41 +725,49 @@ local function Scheduler(playlist_source, job_queue)
             job_queue.add(item.fn, starts, ends, item.coord)
         end
 
-        local base
-        if global_synced then
-            -- We're called during the current cycle (due to
-            -- the SCHEDULE_LOOKAHEAD offset from the last
-            -- item in the current cycle). Therefore offset
-            -- by one so we have the next cycle.
-            local cycle = floor(now / total_duration) + 1
-            base = cycle * total_duration
-        else
-            base = scheduled_until
-        end
+        local base = scheduled_until
 
         print("base unix time is", base)
             
         for idx = 1, #playlist do
             local item = playlist[idx]
             local starts = base + item.offset
-            if starts >= scheduled_until - TOLERANCE then
-                enqueue(starts, item)
-            end
+            enqueue(starts, item)
         end
 
         scheduled_until = base + total_duration
         next_schedule = scheduled_until - SCHEDULE_LOOKAHEAD
     end
 
+    local function tick(now)
+        if now < next_schedule then
+            return
+        end
+
+        local playlist = playlist_source.create_all()
+        enqueue_playlist(playlist)
+    end
+
+    local function interrupt(idx, duration, title)
+        job_queue.flush()
+        local playlist = playlist_source.create_one(idx, duration, title)
+        scheduled_until = clock.unix()
+        enqueue_playlist(playlist)
+    end
+
     return {
         tick = tick;
+        interrupt = interrupt;
     }
 end
 
-local function playlist()
-    local playlist = {}
-    local how = clock.hour_of_week()
-    local offset = 0
+local function Playlist()
+    local playlist, offset
+
+    local function reset()
+        playlist = {}
+        offset = 0
+    end
 
     local function add(item)
         playlist[#playlist+1] = item
@@ -773,6 +797,10 @@ local function playlist()
 
     local function tile_bottom_clock(s, e, now)
         return 0, HEIGHT-50, 300, HEIGHT
+    end
+
+    local function tile_bottom_right(s, e, now)
+        return 0, HEIGHT-50, WIDTH, HEIGHT
     end
 
     local function tile_right(s, e, now)
@@ -843,8 +871,8 @@ local function playlist()
         return duration
     end
 
-    local function page_fullscreen(page) 
-        local duration = get_duration(page)
+    local function page_fullscreen(page, duration) 
+        duration = duration or get_duration(page)
         add{
             offset = offset,
             duration = duration,
@@ -855,8 +883,8 @@ local function playlist()
         offset = offset + duration
     end
 
-    local function page_text_left(page)
-        local duration = get_duration(page)
+    local function page_text_left(page, duration)
+        duration = duration or get_duration(page)
         add{
             offset = offset,
             duration = duration,
@@ -896,8 +924,8 @@ local function playlist()
         offset = offset + duration
     end
 
-    local function page_text_right(page)
-        local duration = get_duration(page)
+    local function page_text_right(page, duration)
+        duration = duration or get_duration(page)
         add{
             offset = offset,
             duration = duration,
@@ -943,28 +971,79 @@ local function playlist()
         ["text-right"] = page_text_right;
     }
 
-    for idx = 1, #node_config.pages do
+    local function create_one(idx, duration, title)
+        reset()
         local page = node_config.pages[idx]
-        -- hours might be empty, in which case the hour
-        -- should default to true. So explicitly test
-        -- for unscheduled hours.
-        if page.schedule.hours[how+1] == false then
-            print("page ", idx, "not scheduled")
+        local duration = page.interaction.duration
+        if duration == "auto" then
+            duration = get_duration(page)
         else
-            layouts[page.layout](page)
+            duration = 99999999999
         end
+        layouts[page.layout](page, duration)
+        local title = page.interaction.title
+        if title ~= "" then
+            add{
+                offset = 0,
+                duration = duration,
+                fn = TextTile{
+                    text = title,
+                    font = font_regl, 
+                    r=1, g=1, b=1,
+                },
+                coord = tile_bottom_right,
+            }
+        end
+
+        return playlist
     end
 
-    -- pp(playlist)
+    local function create_all()
+        reset()
+        local how = clock.hour_of_week()
+        for idx = 1, #node_config.pages do
+            local page = node_config.pages[idx]
+            -- hours might be empty, in which case the hour
+            -- should default to true. So explicitly test
+            -- for unscheduled hours.
+            if page.schedule.hours[how+1] == false then
+                print("page ", idx, "not scheduled")
+            else
+                layouts[page.layout](page)
+            end
+        end
+        return playlist
+    end
 
-    return playlist
+    return {
+        create_all = create_all;
+        create_one = create_one;
+    }
 end
 
 local job_queue = JobQueue()
+local playlist = Playlist()
 local scheduler = Scheduler(playlist, job_queue)
 
-util.file_watch("config.json", function(raw)
-    node_config = json.decode(raw)
+local function handle_event(event)
+    if event.action == "down" then
+        for idx = 1, #node_config.pages do
+            local page = node_config.pages[idx]
+            if page.interaction.key == event.key then
+                scheduler.interrupt(idx, page.interaction.duration, page.interaction.title)
+            end
+        end
+    end
+end
+
+util.data_mapper{
+    ["input/event"] = function(raw_event)
+        return handle_event(json.decode(raw_event))
+    end
+}
+
+util.json_watch("config.json", function(new_config)
+    node_config = new_config
 end)
 
 function node.render()
