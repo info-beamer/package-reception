@@ -799,7 +799,7 @@ local function Playlist()
     end
 
     local function tile_bottom_right(s, e, now)
-        return 0, HEIGHT-50, WIDTH, HEIGHT
+        return 0, HEIGHT-50-1, WIDTH, HEIGHT
     end
 
     local function tile_right(s, e, now)
