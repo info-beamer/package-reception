@@ -474,7 +474,7 @@ local function TextTile(config)
             local size = y2 - y1 - 8
             local w = font:width(config.text, size)
             x1 = x2 - w - 40
-            flat:draw(x1, y1, x2, y2)
+            flat:draw(x1, y1+2, x2, y2)
             config.font:write(x1+20, y1+4, config.text, size, config.fg.r, config.fg.g, config.fg.b,1)
         end
         flat:dispose()
@@ -799,7 +799,7 @@ local function Playlist()
     end
 
     local function tile_bottom_right(s, e, now)
-        return 0, HEIGHT-50-1, WIDTH, HEIGHT
+        return 0, HEIGHT-50, WIDTH, HEIGHT
     end
 
     local function tile_right(s, e, now)
