@@ -469,14 +469,13 @@ end
 local function TextTile(config)
     return function(starts, ends)
         local font = config.font
-        local r, g, b = config.r, config.g, config.b
-        local flat = resource.create_colored_texture(r, g, b, 1)
+        local flat = resource.create_colored_texture(config.bg.r, config.bg.g, config.bg.b, 1)
         for now, x1, y1, x2, y2 in from_to(starts, ends) do
             local size = y2 - y1 - 8
             local w = font:width(config.text, size)
             x1 = x2 - w - 40
             flat:draw(x1, y1, x2, y2)
-            config.font:write(x1+20, y1+4, config.text, size, 0,0,0,1)
+            config.font:write(x1+20, y1+4, config.text, size, config.fg.r, config.fg.g, config.fg.b,1)
         end
         flat:dispose()
     end
@@ -989,7 +988,8 @@ local function Playlist()
                 fn = TextTile{
                     text = title,
                     font = font_regl, 
-                    r=1, g=1, b=1,
+                    bg = {r=0, g=0, b=0},
+                    fg = {r=1, g=1, b=1},
                 },
                 coord = tile_bottom_right,
             }
