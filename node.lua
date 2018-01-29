@@ -466,7 +466,8 @@ local function TimeTile(config)
     end
 end
 
-local function TextTile(config)
+local white = resource.create_colored_texture(1,1,1,1)
+local function InteractionTitle(config)
     return function(starts, ends)
         local font = config.font
         local flat = resource.create_colored_texture(config.bg.r, config.bg.g, config.bg.b, 1)
@@ -475,6 +476,7 @@ local function TextTile(config)
             local w = font:width(config.text, size)
             x1 = x2 - w - 40
             flat:draw(x1, y1+2, x2, y2)
+            white:draw(x1, y1, x1+2, y2)
             config.font:write(x1+20, y1+4, config.text, size, config.fg.r, config.fg.g, config.fg.b,1)
         end
         flat:dispose()
@@ -985,7 +987,7 @@ local function Playlist()
             add{
                 offset = 0,
                 duration = duration,
-                fn = TextTile{
+                fn = InteractionTitle{
                     text = title,
                     font = font_regl, 
                     bg = {r=0, g=0, b=0},
