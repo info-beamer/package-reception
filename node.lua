@@ -457,11 +457,11 @@ local function TimeTile(config)
         local font = config.font
         local r, g, b = config.r, config.g, config.b
         for now, x1, y1, x2, y2 in from_to(starts, ends) do
-            local size = y2 - y1
+            local size = y2 - y1 - 8
             local time = clock.human()
             local w = font:width(time, size)
             local offset = ((x2 - x1) - w) / 2
-            config.font:write(x1+offset,  y1+config.y, time, size, r,g,b,1)
+            config.font:write(x1+offset,  y1+4, time, size, r,g,b,1)
         end
     end
 end
@@ -835,8 +835,6 @@ local function Playlist()
             offset = offset,
             duration = duration,
             fn = TimeTile{
-                x = 0,
-                y = 2,
                 font = font_regl, 
                 r = 1, g = 1, b = 1,
             },
