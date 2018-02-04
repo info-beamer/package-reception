@@ -18,6 +18,8 @@ local overlay_debug = false
 local font_regl = resource.load_font "default-font.ttf"
 local font_bold = resource.load_font "default-font-bold.ttf"
 
+local active_intermission_page_idx
+
 local overlays = {
     resource.create_colored_texture(1,0,0),
     resource.create_colored_texture(0,1,0),
@@ -483,6 +485,14 @@ local function InteractionTitle(config)
     end
 end
 
+local function ResetIntermission(config)
+    return function(starts, ends)
+        print "intermission ended"
+        wait_t(ends)
+        active_intermission_page_idx = nil
+    end
+end
+
 local function Markup(config)
     local text = config.text
     local width = config.width
@@ -749,16 +759,21 @@ local function Scheduler(playlist_source, job_queue)
         enqueue_playlist(playlist)
     end
 
-    local function interrupt(idx, duration, title)
+    local function intermission(idx)
+        local playlist = playlist_source.create_intermission(idx)
+        if not playlist then
+            print "requested intermission does not exist"
+            return
+        end
         job_queue.flush()
-        local playlist = playlist_source.create_one(idx, duration, title)
         scheduled_until = clock.unix()
         enqueue_playlist(playlist)
+        active_intermission_page_idx = idx
     end
 
     return {
         tick = tick;
-        interrupt = interrupt;
+        intermission = intermission;
     }
 end
 
@@ -970,9 +985,13 @@ local function Playlist()
         ["text-right"] = page_text_right;
     }
 
-    local function create_one(idx, duration, title)
-        reset()
+    local function create_intermission(idx)
         local page = node_config.pages[idx]
+        if not page then
+            return
+        end
+
+        reset()
         local duration = page.interaction.duration
         if duration == "auto" then
             duration = get_duration(page)
@@ -992,6 +1011,12 @@ local function Playlist()
                     fg = {r=1, g=1, b=1},
                 },
                 coord = tile_bottom_right,
+            }
+            add{
+                offset = 0,
+                duration = duration,
+                fn = ResetIntermission{},
+                coord = static(0, 0, 0, 0),
             }
         end
 
@@ -1017,7 +1042,7 @@ local function Playlist()
 
     return {
         create_all = create_all;
-        create_one = create_one;
+        create_intermission = create_intermission;
     }
 end
 
@@ -1030,7 +1055,7 @@ local function handle_event(event)
         for idx = 1, #node_config.pages do
             local page = node_config.pages[idx]
             if page.interaction.key == event.key then
-                scheduler.interrupt(idx, page.interaction.duration, page.interaction.title)
+                scheduler.intermission(idx)
             end
         end
     end
@@ -1044,6 +1069,13 @@ util.data_mapper{
 
 util.json_watch("config.json", function(new_config)
     node_config = new_config
+
+    -- TODO: Be smarter about restarting the intermission.
+    -- Maybe detect if page itself has change compared to the
+    -- currently active version?
+    if active_intermission_page_idx then
+        scheduler.intermission(active_intermission_page_idx)
+    end
 end)
 
 function node.render()
@@ -1055,4 +1087,5 @@ function node.render()
     gl.perspective(fov, WIDTH/2, HEIGHT/2, -WIDTH,
                         WIDTH/2, HEIGHT/2, 0)
     job_queue.tick(now)
+    print("active intermission", active_intermission_page_idx)
 end
