@@ -468,6 +468,12 @@ Vue.component('interaction-ui', {
       {key: "kp8", value: "numpad 8"},
       {key: "kp9", value: "numpad 9"},
 
+      {key: "kpdot",      value: "numpad ,"},
+      {key: "kpslash",    value: "numpad /"},
+      {key: "kpplus",     value: "numpad +"},
+      {key: "kpminus",    value: "numpad -"},
+      {key: "kpasterisk", value: "numpad *"},
+
       {key: "f1", value: "F1"},
       {key: "f2", value: "F2"},
       {key: "f3", value: "F3"},
