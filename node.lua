@@ -1012,13 +1012,14 @@ local function Playlist()
                 },
                 coord = tile_bottom_right,
             }
-            add{
-                offset = 0,
-                duration = duration,
-                fn = ResetIntermission{},
-                coord = static(0, 0, 0, 0),
-            }
         end
+
+        add{
+            offset = 0,
+            duration = duration,
+            fn = ResetIntermission{},
+            coord = static(0, 0, 0, 0),
+        }
 
         return playlist
     end
