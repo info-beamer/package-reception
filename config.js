@@ -474,7 +474,7 @@ Vue.component('interaction-ui', {
       {key: "kpminus",    value: "Numpad -"},
       {key: "kpasterisk", value: "Numpad *"},
       {key: "kpenter",    value: "Numpad Enter"},
-      {key: "numpad",     value: "Numpad Key"},
+      {key: "numlock",    value: "Numpad Key"},
 
       {key: "f1", value: "F1"},
       {key: "f2", value: "F2"},
