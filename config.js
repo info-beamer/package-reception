@@ -488,6 +488,22 @@ Vue.component('interaction-ui', {
       {key: "f10",value: "F10"},
       {key: "f11",value: "F11"},
       {key: "f12",value: "F12"},
+
+      {key: "leftshift",value: "Left Shift"},
+      {key: "leftctrl",value: "Left Ctrl"},
+      {key: "leftalt",value: "Left Alt"},
+      {key: "leftmeta",value: "Left Meta"},
+      {key: "rightshift",value: "Right Shift"},
+      {key: "rightctrl",value: "Right Ctrl"},
+      {key: "rightalt",value: "Right Alt"},
+      {key: "rightmeta",value: "Right Meta"},
+
+      {key: "backspace",value: "Backspace"},
+      {key: "compose",value: "Compose"},
+      {key: "capslock",value: "Capslock"},
+      {key: "esc",value: "Escape"},
+      {key: "enter",value: "Enter"},
+      {key: "tab",value: "Tab"},
     ],
     durations: [
       {key: "auto",    value: "as configured"},
