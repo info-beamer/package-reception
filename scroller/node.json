@@ -24,7 +24,9 @@
         "options": [
             [ 50, "Slow"],
             [100, "Normal"],
-            [140, "Faster"]
+            [140, "Faster"],
+            [200, "Quite fast"],
+            [300, "Lightspeed"]
         ],
         "default": 100
     }, {
