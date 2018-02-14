@@ -755,7 +755,7 @@ local function Scheduler(playlist_source, job_queue)
             return
         end
 
-        local playlist = playlist_source.create_all()
+        local playlist = playlist_source.create_next()
         enqueue_playlist(playlist)
     end
 
@@ -1024,6 +1024,26 @@ local function Playlist()
         return playlist
     end
 
+    local cycle_idx = 0
+    local function create_next()
+        reset()
+        local how = clock.hour_of_week()
+        for retry = 1, #node_config.pages do
+            cycle_idx = cycle_idx % #node_config.pages + 1
+            local page = node_config.pages[cycle_idx]
+            -- hours might be empty, in which case the hour
+            -- should default to true. So explicitly test
+            -- for unscheduled hours.
+            if page.schedule.hours[how+1] == false then
+                print("page ", idx, "not scheduled")
+            else
+                layouts[page.layout](page)
+                break -- found a working page
+            end
+        end
+        return playlist
+    end
+
     local function create_all()
         reset()
         local how = clock.hour_of_week()
@@ -1043,6 +1063,7 @@ local function Playlist()
 
     return {
         create_all = create_all;
+        create_next = create_next;
         create_intermission = create_intermission;
     }
 end
