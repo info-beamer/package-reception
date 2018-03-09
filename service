@@ -13,9 +13,6 @@ from evdev import ecodes, InputDevice, list_devices
 from evdev.events import KeyEvent
 from hosted import CONFIG, NODE
 
-CONFIG.restart_on_update()
-
-tz = pytz.timezone(CONFIG['timezone'])
 devices = {}
 
 def update_devices():
@@ -34,6 +31,8 @@ def current_time():
     return now, timestamp
 
 def send_clock(now, ts):
+    tz = pytz.timezone(CONFIG['timezone'])
+
     now = now.replace(tzinfo=pytz.utc)
     now = now.astimezone(tz)
     now = now.replace(tzinfo=None)
