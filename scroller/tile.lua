@@ -105,7 +105,7 @@ local function draw_scroller(x, y, w, h)
 
         local a = item.color.a
         if item.blink then
-            a = math.min(1, 1-math.sin(sys.now()*3)) * a
+            a = math.min(1, 1-math.sin(sys.now()*10)) * a
         end
         local text_width = font:write(
             x, y+4, item.text, h-8, 
