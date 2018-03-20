@@ -74,8 +74,14 @@ local function draw_scroller(x, y, w, h)
             local ok, item = pcall(feed)
             if ok and item then
                 items[#items+1] = {
-                    text = item.text .. "    -    ",
-                    image = prepare_image(item.image)
+                    text = item.text,
+                    image = prepare_image(item.image),
+                    color = item.color or color,
+                    blink = item.blink,
+                }
+                items[#items+1] = {
+                    text = "    -    ",
+                    color = color,
                 }
             else
                 print "no scroller item. showing blanks"
@@ -97,9 +103,13 @@ local function draw_scroller(x, y, w, h)
             end
         end
 
+        local a = item.color.a
+        if item.blink then
+            a = math.min(1, 1-math.sin(sys.now()*3)) * a
+        end
         local text_width = font:write(
             x, y+4, item.text, h-8, 
-            color.r, color.g, color.b, color.a
+            item.color.r, item.color.g, item.color.b, a
         )
         x = x + text_width
 
@@ -126,9 +136,18 @@ function M.updated_config_json(config)
     speed = config.speed
 
     content.__myself__ = {}
-    local texts = content.__myself__
+    local items = content.__myself__
     for idx = 1, #config.texts do
-        texts[#texts+1] = {text = config.texts[idx].text}
+        local item = config.texts[idx]
+        local color
+        if item.color.a ~= 0 then
+            color = item.color
+        end
+        items[#items+1] = {
+            text = item.text,
+            blink = item.blink,
+            color = color,
+        }
     end
 end
 

@@ -11,7 +11,7 @@
         "doc_link": true,
         "default": "default-font.ttf"
     }, {
-        "title": "Font Color",
+        "title": "Default Font Color",
         "ui_width": 3,
         "type": "color",
         "name": "color",
@@ -29,17 +29,35 @@
             [300, "Lightspeed"]
         ],
         "default": 100
+    }, 
+    
+    {
+        "title": "Content",
+        "type": "section"
     }, {
-        "title": "Text Lines",
+        "title": "Scroller content and appearance",
         "name": "texts",
         "type": "list",
         "itemname": "Text",
         "items": [{
-            "title": "Text in Scroller",
-            "ui_width": 12,
+            "title": "Text",
+            "ui_width": 7,
             "name": "text",
             "type": "string",
             "default": ""
+        }, {
+            "title": "Font Color",
+            "hint": "Select a custom color for this item. Only used if not 0,0,0,0",
+            "ui_width": 3,
+            "type": "color",
+            "name": "color",
+            "default": [0,0,0,0]
+        }, {
+            "title": "Blink",
+            "ui_width": 2,
+            "type": "boolean",
+            "name": "blink",
+            "default": false
         }]
     }],
     "deferred": [
