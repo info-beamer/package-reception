@@ -115,6 +115,14 @@ Vue.component('config-ui', {
         this.$store.dispatch('set_option', {key: 'audio', value: value});
       },
     },
+    poll_url: {
+      get() {
+        return this.config.poll_url;
+      },
+      set(value) {
+        this.$store.dispatch('set_option', {key: 'poll_url', value: value});
+      },
+    },
     pages() {
       return this.config.pages;
     },

@@ -6,12 +6,16 @@ import sys
 import pytz
 import json
 import threading
+import shutil
+import requests
 from datetime import datetime, timedelta
 from calendar import timegm
 from select import select
 from evdev import ecodes, InputDevice, list_devices
 from evdev.events import KeyEvent
 from hosted import CONFIG, NODE
+
+SERIAL = os.environ['SERIAL']
 
 devices = {}
 
@@ -86,6 +90,53 @@ def send_time():
     send_clock(now, ts)
     time.sleep(0.5)
 
+def sync_remote():
+    states = {}
+    http = requests.Session()
+    http.headers['User-Agent'] = "Poller device %s" % SERIAL
+
+    while 1:
+        base_url = CONFIG['poll_url'].strip()
+        if not base_url:
+            time.sleep(1)
+            return
+
+        files = []
+        for page in CONFIG['pages']:
+            files.append((page['media']['filename'], page['media']['asset_name']))
+
+        print >>sys.stderr, "probing new content from %s" % (base_url,)
+        for filename, asset_name in files:
+            state = states.setdefault(filename, {})
+
+            headers = {}
+            if state.get('etag'):
+                headers['If-None-Match'] = state['etag']
+            if state.get('last_mod'):
+                headers['If-Modified-Since'] = state['last_mod']
+
+            url = base_url + '/' + filename
+            try:
+                r = http.get(
+                    url = url,
+                    headers = headers,
+                    stream = True,
+                    timeout = 5,
+                )
+                r.raise_for_status()
+                if r.status_code == 304:
+                    print >>sys.stderr, "%s unchanged" % (url,)
+                    continue
+                state['etag'] = r.headers.get('etag')
+                state['last_mod'] = r.headers.get('last-modified')
+                print >>sys.stderr, "got new content for %s: %r" % (url, state)
+                with file("download.temp", "wb") as out:
+                    shutil.copyfileobj(r.raw, out)
+                os.rename("download.temp", "remote-%s" % asset_name)
+            except Exception, err:
+                print >>sys.stderr, "cannot fetch %s: %s" % (url, err)
+        time.sleep(5)
+
 def run_in_thread(fn):
     def wrap():
         try:
@@ -101,5 +152,6 @@ def run_in_thread(fn):
 if __name__ == "__main__":
     run_in_thread(send_time)
     run_in_thread(monitor_input)
+    run_in_thread(sync_remote)
 
     while 1: time.sleep(1000)

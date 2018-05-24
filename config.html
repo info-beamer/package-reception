@@ -125,10 +125,15 @@
               @timezoneSelected='onSetConfig("timezone", $event)'>
             </timezone-select>
           </div>
-          <div class='col-xs-4'>
+          <div class='col-xs-2'>
             <label class='field-label'>Audio</label>
             <br/>
             <input type="checkbox" v-model="audio"/>
+          </div>
+          <div class='col-xs-6'>
+            <label class='field-label'>Remote Poll Url</label>
+            <br/>
+            <input class='form-control' type="input" v-model="poll_url" placeholder="Leave empty to disable polling"/>
           </div>
         </div>
 

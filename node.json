@@ -1,6 +1,9 @@
 {
     "name": "Info Screen",
     "custom_ui": "config.html",
+    "permissions": {
+        "network": "Might be configured to fetch remote content"
+    },
     "optional": [
       "COPYRIGHT",
       ".*.js",
@@ -41,6 +44,12 @@
         "name": "audio",
         "type": "boolean",
         "default": false
+    }, {
+        "title": "Remote Poll Url",
+        "ui_width": 12,
+        "name": "poll_url",
+        "type": "string",
+        "default": ""
     },
         
     {

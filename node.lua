@@ -295,6 +295,18 @@ local kenburns_shader = resource.create_shader[[
     }
 ]]
 
+local function remote_or_local_asset(asset_name)
+    local ok, file
+    if node_config.poll_url ~= "" then
+        ok, file = pcall(resource.open_file, "remote-" .. asset_name)
+        if ok then
+            print("using remotely fetched file for", asset_name)
+            return file
+        end
+    end
+    return resource.open_file(asset_name)
+end
+
 local function Image(config)
     -- config:
     --   asset_name: 'foo.jpg'
@@ -302,7 +314,7 @@ local function Image(config)
     --   fade_time: 0-1
     --   fit: true/false
 
-    local file = resource.open_file(config.asset_name)
+    local file = remote_or_local_asset(config.asset_name)
 
     return function(starts, ends)
         wait_t(starts - 2)
@@ -385,7 +397,7 @@ local function Video(config)
     --   raw: use raw video?
     --   layer: video layer for raw videos
 
-    local file = resource.open_file(config.asset_name)
+    local file = remote_or_local_asset(config.asset_name)
 
     return function(starts, ends)
         wait_t(starts - 1)
@@ -1109,5 +1121,5 @@ function node.render()
     gl.perspective(fov, WIDTH/2, HEIGHT/2, -WIDTH,
                         WIDTH/2, HEIGHT/2, 0)
     job_queue.tick(now)
-    print("active intermission", active_intermission_page_idx)
+    -- print("active intermission", active_intermission_page_idx)
 end
