@@ -95,11 +95,25 @@ def sync_remote():
     http = requests.Session()
     http.headers['User-Agent'] = "Poller device %s" % SERIAL
 
+    old_config = {}
+
     while 1:
         base_url = CONFIG['poll_url'].strip()
         if not base_url:
             time.sleep(1)
             return
+
+        new_config = CONFIG.raw
+        if new_config != old_config:
+            print >>sys.stderr, "purging old remote files"
+            for filename in os.listdir("."):
+                if not filename.startswith("remote-"):
+                    continue
+                try:
+                    os.unlink(filename)
+                except:
+                    pass
+            old_config = new_config
 
         files = []
         for page in CONFIG['pages']:

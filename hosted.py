@@ -77,6 +77,10 @@ def integer(value):
     return value
 
 @type
+def float(value):
+    return value
+
+@type
 def font(value):
     return value
 
@@ -94,6 +98,10 @@ def json(value):
 
 @type
 def custom(value):
+    return value
+
+@type
+def date(value):
     return value
 
 def log(msg):
@@ -162,6 +170,10 @@ class Configuration(object):
         parse_recursive(self._options, self._config, parsed)
         log("updated config")
         self._parsed = parsed
+
+    @property
+    def raw(self):
+        return self._config
 
     def __getitem__(self, key):
         return self._parsed[key]
