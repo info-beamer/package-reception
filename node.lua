@@ -113,6 +113,48 @@ local function wrap(str, limit, indent, indent1)
     return splitted
 end 
 
+local function Pinner()
+    local pinned = {}
+
+    local function update(asset_name, file)
+        if pinned[asset_name] then
+            pinned[asset_name]:dispose()
+        end
+        pinned[asset_name] = file
+    end
+
+    local function pin(asset_name)
+        local ok, file = pcall(resource.open_file, asset_name)
+        if ok then
+            update(asset_name, file)
+        end
+    end
+
+    local function flush()
+        for asset_name, _ in pairs(pinned) do
+            update(asset_name, nil)
+        end
+    end
+
+    local function get(asset_name)
+        if pinned[asset_name] then
+            print('using pinned asset', asset_name)
+            return pinned[asset_name]:copy()
+        else
+            print('using direct asset', asset_name)
+            return asset_name
+        end
+    end
+
+    return {
+        pin = pin;
+        flush = flush;
+        get = get;
+    }
+end
+
+local pinner = Pinner()
+
 local function Clock()
     local base_day = 0
     local base_week = 0
@@ -304,7 +346,7 @@ local function remote_or_local_asset(asset_name)
             return file
         end
     end
-    return resource.open_file(asset_name)
+    return pinner.get(asset_name)
 end
 
 local function Image(config)
@@ -1103,6 +1145,13 @@ util.data_mapper{
 
 util.json_watch("config.json", function(new_config)
     node_config = new_config
+
+    -- pin asset files if possible
+    pinner.flush()
+    for idx = 1, #node_config.pages do
+        local page = node_config.pages[idx]
+        pinner.pin(page.media.asset_name)
+    end
 
     -- TODO: Be smarter about restarting the intermission.
     -- Maybe detect if page itself has change compared to the
