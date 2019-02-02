@@ -34,7 +34,7 @@ def send_clock(now, ts):
     node.send('/clock/since_monday:%f' % since_monday)
 
     human_time = now.strftime(config.time_fmt)
-    human_time = human_time.replace("AM", "am").replace("PM", "pm")
+    # human_time = human_time.replace("AM", "am").replace("PM", "pm")
     node.send('/clock/human:%s' % human_time)
 
 def main():
