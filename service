@@ -4,11 +4,11 @@ import sys
 import pytz
 from datetime import datetime, timedelta
 from calendar import timegm
-from hosted import CONFIG, NODE
+from hosted import config, node
 
-CONFIG.restart_on_update()
+config.restart_on_update()
 
-tz = pytz.timezone(CONFIG['timezone'])
+tz = pytz.timezone(config.timezone)
 
 def current_time():
     now = datetime.utcnow()
@@ -30,9 +30,9 @@ def send_clock(now, ts):
     since_monday = now - monday
     since_monday = since_monday.days * 86400 + since_monday.seconds + since_monday.microseconds / 1000000.
 
-    NODE.send('/clock/since_midnight:%f' % since_midnight)
-    NODE.send('/clock/since_monday:%f' % since_monday)
-    NODE.send('/clock/human:%s' % now.strftime(CONFIG['time_fmt']))
+    node.send('/clock/since_midnight:%f' % since_midnight)
+    node.send('/clock/since_monday:%f' % since_monday)
+    node.send('/clock/human:%s' % now.strftime(config.time_fmt))
 
 def main():
     while 1:
