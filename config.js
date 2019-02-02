@@ -96,6 +96,14 @@ Vue.component('config-ui', {
     config() {
       return this.$store.state.config;
     },
+    time_fmt: {
+      get() {
+        return this.config.time_fmt;
+      },
+      set(value) {
+        this.$store.dispatch('set_option', {key: 'time_fmt', value: value});
+      },
+    },
     audio: {
       get() {
         return this.config.audio;

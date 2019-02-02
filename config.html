@@ -122,6 +122,17 @@
             </timezone-select>
           </div>
           <div class='col-xs-4'>
+            <label class='field-label'>Time format</label>
+            <br/>
+            <select class='btn btn-default' v-model='time_fmt'>
+              <option value='%a %H:%M'>Sat 14:39</option>
+              <option value='%a %I:%M%p'>Sat 2:39pm</option>
+              <option value='%H:%M'>14:39</option>
+              <option value='%I:%M%p'>2:39pm</option>
+            </select>
+            <input type="checkbox" v-model="audio"/>
+          </div>
+          <div class='col-xs-4'>
             <label class='field-label'>Audio</label>
             <br/>
             <input type="checkbox" v-model="audio"/>
@@ -592,6 +603,7 @@
         header: 1,
         footer: "package.png",
         timezone: "Europe/Berlin",
+        time_fmt: "%a %H:%M",
         pages: [{
           layout: 'text-right',
           schedule: {
