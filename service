@@ -15,6 +15,11 @@ def current_time():
     timestamp = timegm(now.timetuple()) + now.microsecond / 1000000.
     return now, timestamp
 
+def days_ago(now):
+    date = datetime.strptime(config.date, "%Y-%m-%d")
+    delta = now - date
+    return delta.days
+
 def send_clock(now, ts):
     now = now.replace(tzinfo=pytz.utc)
     now = now.astimezone(tz)
@@ -36,6 +41,8 @@ def send_clock(now, ts):
     human_time = now.strftime(config.time_fmt)
     # human_time = human_time.replace("AM", "am").replace("PM", "pm")
     node.send('/clock/human:%s' % human_time)
+
+    node.send('/data/since_date:%d' % days_ago(now))
 
 def main():
     while 1:

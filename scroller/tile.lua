@@ -73,13 +73,7 @@ local function draw_scroller(x, y, w, h, config)
         if idx > #items then
             local ok, item = pcall(feed)
             if ok and item then
-                local text = item.text 
-                -- date replacement
-                local y, m, d = config.date:match('(%d%d%d%d)[-](%d%d)[-](%d%d)')
-                if y then
-                    text = text:gsub("%%date%%", string.format("%s.%s.%s", d, m, y))
-                end
-                --/date replacement
+                local text = item.text:gsub("%%days%%", config.days_ago)
                 items[#items+1] = {
                     text = text .. "    -    ",
                     image = prepare_image(item.image)

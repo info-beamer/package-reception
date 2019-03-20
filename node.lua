@@ -18,6 +18,8 @@ local overlay_debug = false
 local font_regl = resource.load_font "default-font.ttf"
 local font_bold = resource.load_font "default-font-bold.ttf"
 
+local days_ago = 0
+
 local overlays = {
     resource.create_colored_texture(1,0,0),
     resource.create_colored_texture(0,1,0),
@@ -25,6 +27,12 @@ local overlays = {
     resource.create_colored_texture(1,0,1),
     resource.create_colored_texture(1,1,0),
     resource.create_colored_texture(0,1,1),
+}
+
+util.data_mapper{
+    ["data/since_date"] = function(value)
+        days_ago = tonumber(value)
+    end;
 }
 
 local function in_epsilon(a, b, e)
@@ -467,14 +475,7 @@ local function TimeTile(config)
 end
 
 local function Markup(config)
-    local text = config.text
-
-    -- date replacement
-    local y, m, d = node_config.date:match('(%d%d%d%d)[-](%d%d)[-](%d%d)')
-    if y then
-        text = text:gsub("%%date%%", string.format("%s.%s.%s", d, m, y))
-    end
-    --/date replacement
+    local text = config.text:gsub("%%days%%", days_ago)
     local width = config.width
     local height = config.height
     local color = config.color:gsub("#","")
@@ -805,7 +806,7 @@ local function playlist()
             duration = duration,
             fn = TileChild{
                 asset_name = 'scroller',
-                date = node_config.date,
+                days_ago = days_ago,
             },
             coord = tile_bottom_scroller,
         }
