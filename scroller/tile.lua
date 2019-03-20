@@ -43,7 +43,7 @@ local items = {}
 local current_left = 0
 local last = sys.now()
 
-local function draw_scroller(x, y, w, h)
+local function draw_scroller(x, y, w, h, config)
     scissors.set(x, y, x+w, y+h)
 
     local now = sys.now()
@@ -73,8 +73,15 @@ local function draw_scroller(x, y, w, h)
         if idx > #items then
             local ok, item = pcall(feed)
             if ok and item then
+                local text = item.text 
+                -- date replacement
+                local y, m, d = config.date:match('(%d%d%d%d)[-](%d%d)[-](%d%d)')
+                if y then
+                    text = text:gsub("%%date%%", string.format("%s.%s.%s", d, m, y))
+                end
+                --/date replacement
                 items[#items+1] = {
-                    text = item.text .. "    -    ",
+                    text = text .. "    -    ",
                     image = prepare_image(item.image)
                 }
             else
@@ -132,9 +139,9 @@ function M.updated_config_json(config)
     end
 end
 
-function M.task(starts, ends, custom)
+function M.task(starts, ends, config)
     for now, x1, y1, x2, y2 in api.from_to(starts, ends) do
-        draw_scroller(x1, y1, x2-x1, y2-y1)
+        draw_scroller(x1, y1, x2-x1, y2-y1, config)
     end
 end
 
