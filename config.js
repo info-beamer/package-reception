@@ -104,6 +104,14 @@ Vue.component('config-ui', {
         this.$store.dispatch('set_option', {key: 'time_fmt', value: value});
       },
     },
+    date: {
+      get() {
+        return this.config.date;
+      },
+      set(value) {
+        this.$store.dispatch('set_option', {key: 'date', value: value});
+      },
+    },
     audio: {
       get() {
         return this.config.audio;

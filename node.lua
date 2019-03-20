@@ -468,6 +468,13 @@ end
 
 local function Markup(config)
     local text = config.text
+
+    -- date replacement
+    local y, m, d = node_config.date:match('(%d%d%d%d)[-](%d%d)[-](%d%d)')
+    if y then
+        text = text:gsub("%%date%%", string.format("%s.%s.%s", d, m, y))
+    end
+    --/date replacement
     local width = config.width
     local height = config.height
     local color = config.color:gsub("#","")
@@ -963,8 +970,8 @@ end
 local job_queue = JobQueue()
 local scheduler = Scheduler(playlist, job_queue)
 
-util.file_watch("config.json", function(raw)
-    node_config = json.decode(raw)
+util.json_watch("config.json", function(new_node_config)
+    node_config = new_node_config
 end)
 
 function node.render()

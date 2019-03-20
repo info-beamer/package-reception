@@ -28,6 +28,12 @@
         "type": "string",
         "default": "%a %H:%M"
     }, {
+        "title": "Date Value",
+        "ui_width": 4,
+        "name": "date",
+        "type": "string",
+        "default": "2019-01-01"
+    }, {
         "title": "Audio",
         "ui_width": 4,
         "name": "audio",

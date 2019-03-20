@@ -121,7 +121,7 @@
               @timezoneSelected='onSetConfig("timezone", $event)'>
             </timezone-select>
           </div>
-          <div class='col-xs-4'>
+          <div class='col-xs-3'>
             <label class='field-label'>Time format</label>
             <br/>
             <select class='btn btn-default' v-model='time_fmt'>
@@ -131,7 +131,12 @@
               <option value='%I:%M %p'>2:39 PM</option>
             </select>
           </div>
-          <div class='col-xs-4'>
+          <div class='col-xs-3'>
+            <label class='field-label'>Unfallfrei seit</label>
+            <br/>
+            <input class='form-control' type="date" v-model="date"/>
+          </div>
+          <div class='col-xs-2'>
             <label class='field-label'>Audio</label>
             <br/>
             <input type="checkbox" v-model="audio"/>
