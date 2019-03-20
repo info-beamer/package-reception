@@ -805,7 +805,7 @@ local function playlist()
             duration = duration,
             fn = TileChild{
                 asset_name = 'scroller',
-                blend = 0,
+                date = node_config.date,
             },
             coord = tile_bottom_scroller,
         }
