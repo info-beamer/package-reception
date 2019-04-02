@@ -33,8 +33,20 @@ def send_clock(now, ts):
     node.send('/clock/since_midnight:%f' % since_midnight)
     node.send('/clock/since_monday:%f' % since_monday)
 
-    human_time = now.strftime(config.time_fmt)
-    # human_time = human_time.replace("AM", "am").replace("PM", "pm")
+    time_fmt = config.time_fmt
+
+    # The following might seem odd, but it allows makes the
+    # new package version compatible with previous config
+    # settings.
+    if time_fmt.startswith('%a'):
+        day_of_week = {
+            'en': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            'es': ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+            'de': ['Mo', 'Di',  'Mi', 'Do', 'Fr', 'Sa', 'So'],
+        }[config.language][now.weekday()]
+        time_fmt = day_of_week + time_fmt[2:]
+
+    human_time = now.strftime(time_fmt)
     node.send('/clock/human:%s' % human_time)
 
 def main():

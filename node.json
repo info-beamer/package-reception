@@ -28,6 +28,17 @@
         "type": "string",
         "default": "%a %H:%M"
     }, {
+        "title": "Language",
+        "ui_width": 4,
+        "name": "language",
+        "type": "select",
+        "options": [
+            ["en", "English"],
+            ["es", "Spanish"],
+            ["de", "German"]
+        ],
+        "default": "en"
+    }, {
         "title": "Audio",
         "ui_width": 4,
         "name": "audio",
