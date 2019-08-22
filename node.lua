@@ -392,17 +392,17 @@ local function Video(config)
 
         local vid
         if config.raw then
-            local raw = sys.get_ext "raw_video"
-            vid = raw.load_video{
+            vid = resource.load_video{
                 file = file,
                 paused = true,
                 audio = node_config.audio,
+                raw = true,
             }
             vid:layer(-10)
 
             for now, x1, y1, x2, y2 in from_to(starts, ends) do
                 vid:layer(config.layer or 5):start()
-                vid:target(x1, y1, x2, y2):alpha(ramp(
+                vid:place(x1, y1, x2, y2):alpha(ramp(
                     starts, ends, now, fade_time
                 ))
             end
