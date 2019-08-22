@@ -112,6 +112,10 @@ adding your text in the new row.
 
 ### Version 0.3
 
+ * Compatible with the Pi4
+
+### Version 0.3
+
  * Added the ability to enable audio output for all video files.
    If you enable this option, be sure that your device actually outputs
    audio to the correct [audio target](https://info-beamer.com/doc/device-configuration#specifyaudiotarget).
