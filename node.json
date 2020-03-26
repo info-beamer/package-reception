@@ -69,7 +69,10 @@
                 ["5", "5 seconds"],
                 ["10", "10 seconds"],
                 ["15", "15 seconds"],
-                ["20", "20 seconds"]
+                ["20", "20 seconds"],
+                ["60", "1 minute"],
+                ["120", "2 minutes"],
+                ["180", "3 minutes"]
             ],
             "default": "10"
         }, {

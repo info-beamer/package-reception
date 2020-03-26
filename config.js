@@ -149,6 +149,12 @@ Vue.component('page-ui', {
       key: "15", value: "15 seconds",
     }, {
       key: "20", value: "20 seconds",
+    }, {
+      key: "60", value: "1 minute",
+    }, {
+      key: "120", value: "2 minutes",
+    }, {
+      key: "180", value: "3 minutes",
     }]
   }),
   methods: {
