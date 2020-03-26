@@ -624,7 +624,7 @@ local function JobQueue()
         local ok, again = coroutine.resume(co, starts, ends)
         if not ok then
             return error(("%s\n%s\ninside coroutine %s started by"):format(
-                again, debug.traceback(job.co), job)
+                again, debug.traceback(co), co)
             )
         elseif not again then
             return
