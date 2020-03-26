@@ -8,5 +8,9 @@
     "nesting": {
         "parents": ["top-level"],
         "childs": []
+    },
+    "offline": {
+        "support": "no",
+        "info": "Needs time source to show a correct clock"
     }
 }
