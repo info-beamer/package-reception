@@ -10,15 +10,18 @@ const store = new Vuex.Store({
     },
   },
   mutations: {
-    init (state, {assets, node_assets, config}) {
+    init(state, {assets, node_assets, config}) {
       state.assets = assets;
       state.node_assets = node_assets;
       state.config = config;
     },
-    remove_page (state, index) {
+    assets_update(state, assets) {
+      state.assets = assets;
+    },
+    remove_page(state, index) {
       state.config.pages.splice(index, 1);
     },
-    create_page (state, index) {
+    create_page(state, index) {
       var new_page = {
         media: "empty.png",
         layout: "fullscreen",
@@ -457,7 +460,26 @@ Vue.component('timezone-select', {
   }
 })
 
-
+function install_native_asset_chooser() {
+  console.log("installing native asset chooser");
+  delete Vue.options.components['asset-browser'];
+  Vue.component('asset-browser', {
+    template: '#asset-browser-native',
+    props: ["asset_spec", "valid", "title", "help"],
+    methods: {
+      onOpen() {
+        var that = this;
+        ib.assetChooser({
+          selected_asset_spec: this.asset_spec,
+          filter: this.valid.split(','),
+          features: ['image2k', 'h264'],
+        }).then(function(selected) {
+          selected && that.$emit('assetSelected', selected.id);
+        })
+      },
+    }
+  })
+}
 
 const app = new Vue({
   el: "#app",
@@ -466,6 +488,13 @@ const app = new Vue({
 
 ib.setDefaultStyle();
 ib.ready.then(() => {
+  if (ib.assetChooser) {
+    install_native_asset_chooser()
+  }
+  ib.onAssetUpdate(() => {
+    console.log("assets updated")
+    store.commit('assets_update', ib.assets)
+  })
   store.dispatch('init', {
     assets: ib.assets,
     node_assets: ib.node_assets,

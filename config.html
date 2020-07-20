@@ -477,6 +477,12 @@
       </div>
     </script>
 
+    <script type="text/x-template" id="asset-browser-native">
+      <button class='btn btn-default' @click="onOpen">
+        {{title}}
+      </button>
+    </script>
+
     <script type="text/x-template" id="asset-browser">
       <div>
         <button class='btn btn-default' v-if="open" @click="onToggleOpen">

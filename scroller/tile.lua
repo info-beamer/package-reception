@@ -10,7 +10,11 @@ local speed
 local M = {}
 
 -- { source: { text1, text2, text3, ...} }
-local content = {__myself__ = {}}
+local content = {
+    __config__ = {},
+    __json__ = {},
+    __data__ = {},
+}
 
 local function mix_content()
     local out = {}
@@ -125,12 +129,27 @@ function M.updated_config_json(config)
     color = config.color
     speed = config.speed
 
-    content.__myself__ = {}
-    local texts = content.__myself__
+    content.__config__ = {}
+    local texts = content.__config__
     for idx = 1, #config.texts do
         texts[#texts+1] = {text = config.texts[idx].text}
     end
 end
+
+function M.updated_scroller_json(scroller)
+    content.__json__ = {}
+    local texts = content.__json__
+    for idx = 1, #scroller do
+        texts[#texts+1] = {text = scroller[idx]}
+    end
+end
+
+util.data_mapper{
+    ["scroller/set"] = function(info)
+        print("setting scroller data to", info)
+        content.__data__ = {{text = info}}
+    end
+}
 
 function M.task(starts, ends, custom)
     for now, x1, y1, x2, y2 in api.from_to(starts, ends) do
