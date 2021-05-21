@@ -4,7 +4,7 @@
     "desc": "Shows textual/image and video information for a reception-style information screen.",
     "repository": "https://github.com/info-beamer/package-reception",
     "version": "0.4",
-    "platforms": ["pi/epoch-1", "pi-4"],
+    "platforms": ["pi/epoch-1", "pi/epoch-2"],
     "nesting": {
         "parents": ["top-level"],
         "childs": []
