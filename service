@@ -34,6 +34,8 @@ def send_clock(now, ts):
     node.send('/clock/since_monday:%f' % since_monday)
 
     time_fmt = config.time_fmt
+    if not time_fmt:
+        return
 
     # The following might seem odd, but it allows makes the
     # new package version compatible with previous config

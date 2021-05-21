@@ -793,26 +793,38 @@ local function playlist()
             },
             coord = tile_bottom,
         }
-        add{
-            offset = offset,
-            duration = duration,
-            fn = TileChild{
-                asset_name = 'scroller',
-                blend = 0,
-            },
-            coord = tile_bottom_scroller,
-        }
-        add{
-            offset = offset,
-            duration = duration,
-            fn = TimeTile{
-                x = 0,
-                y = 2,
-                font = font_regl, 
-                r = 1, g = 1, b = 1,
-            },
-            coord = tile_bottom_clock,
-        }
+        if node_config.time_fmt == "" then
+          add{
+              offset = offset,
+              duration = duration,
+              fn = TileChild{
+                  asset_name = 'scroller',
+                  blend = 0,
+              },
+              coord = tile_bottom,
+          }
+        else
+          add{
+              offset = offset,
+              duration = duration,
+              fn = TileChild{
+                  asset_name = 'scroller',
+                  blend = 0,
+              },
+              coord = tile_bottom_scroller,
+          }
+          add{
+              offset = offset,
+              duration = duration,
+              fn = TimeTile{
+                  x = 0,
+                  y = 2,
+                  font = font_regl, 
+                  r = 1, g = 1, b = 1,
+              },
+              coord = tile_bottom_clock,
+          }
+        end
     end
 
     local function image_or_video_player(media, kenburns)
