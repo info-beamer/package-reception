@@ -290,76 +290,18 @@ Vue.component('asset-view', {
 Vue.component('asset-browser', {
   template: '#asset-browser',
   props: ["asset_spec", "valid", "title", "help"],
-  data: () => ({
-    sorted: "filename",
-    open: false,
-    highlight: undefined,
-    search: "",
-    top: 0,
-  }),
-  computed: {
-    info() {
-      if (this.highlight == undefined) {
-        return "Click to select an asset";
-      } else {
-        return this.highlight.filename + " (" + this.highlight.filetype + ")";
-      }
-    },
-    assets() {
-      var valid = {};
-      for (var v of this.valid.split(",")) {
-        valid[v] = true;
-      }
-      var all_assets = [];
-      function add_all(assets) {
-        for (var asset_id in assets) {
-          var asset = assets[asset_id];
-          if (valid[asset.filetype]) {
-            all_assets.push({
-              id: asset.id,
-              thumb: asset.thumb,
-              filename: asset.filename,
-              filetype: asset.filetype,
-              uploaded: asset.uploaded || 0,
-            })
-          }
-        }
-      }
-      add_all(this.$store.state.assets);
-      add_all(this.$store.state.node_assets);
-      all_assets.sort({
-        filename: function(a, b) {
-          var fa = a.filename.toLocaleLowerCase();
-          var fb = b.filename.toLocaleLowerCase();
-          return fa.localeCompare(fb)
-        },
-        age: function(a, b) { 
-          return a.uploaded - b.uploaded
-        },
-      }[this.sorted]);
-      return all_assets;
-    }
-  },
   methods: {
-    onToggleOpen(evt) {
-      this.open = !this.open;
-      this.top = evt.target.getBoundingClientRect().bottom;
+    onOpen() {
+      var that = this;
+      ib.assetChooser({
+        selected_asset_spec: this.asset_spec,
+        filter: this.valid.split(','),
+        features: ['image2k', 'h264'],
+      }).then(function(selected) {
+        selected && that.$emit('assetSelected', selected.id);
+      })
     },
-    onClose() {
-      this.open = false;
-    },
-    onSort(sorted) {
-      this.sorted = sorted;
-    },
-    onSelect(asset_spec) {
-      this.$emit('assetSelected', asset_spec);
-      this.open = false;
-    },
-    onHighlight(asset_spec) {
-      this.highlight = this.$store.state.assets[asset_spec] || 
-                       this.$store.state.node_assets[asset_spec];
-    }
-  },
+  }
 })
 
 Vue.component('schedule-ui', {
@@ -460,27 +402,6 @@ Vue.component('timezone-select', {
   }
 })
 
-function install_native_asset_chooser() {
-  console.log("installing native asset chooser");
-  delete Vue.options.components['asset-browser'];
-  Vue.component('asset-browser', {
-    template: '#asset-browser-native',
-    props: ["asset_spec", "valid", "title", "help"],
-    methods: {
-      onOpen() {
-        var that = this;
-        ib.assetChooser({
-          selected_asset_spec: this.asset_spec,
-          filter: this.valid.split(','),
-          features: ['image2k', 'h264'],
-        }).then(function(selected) {
-          selected && that.$emit('assetSelected', selected.id);
-        })
-      },
-    }
-  })
-}
-
 const app = new Vue({
   el: "#app",
   store,
@@ -488,9 +409,6 @@ const app = new Vue({
 
 ib.setDefaultStyle();
 ib.ready.then(() => {
-  if (ib.assetChooser) {
-    install_native_asset_chooser()
-  }
   ib.onAssetUpdate(() => {
     console.log("assets updated")
     store.commit('assets_update', ib.assets)

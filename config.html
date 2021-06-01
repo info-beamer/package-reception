@@ -478,60 +478,10 @@
       </div>
     </script>
 
-    <script type="text/x-template" id="asset-browser-native">
+    <script type="text/x-template" id="asset-browser">
       <button class='btn btn-default' @click="onOpen">
         {{title}}
       </button>
-    </script>
-
-    <script type="text/x-template" id="asset-browser">
-      <div>
-        <button class='btn btn-default' v-if="open" @click="onToggleOpen">
-          {{title}} ▴
-        </button>
-        <button class='btn btn-default' v-else @click="onToggleOpen">
-          {{title}} ▾
-        </button>
-        <div
-          v-if="open"
-          class='popup panel panel-default'
-          :style="{top: top + 'px'}">
-          <div class="panel-heading">
-            Asset Select
-            <button class='btn btn-sm btn-default' @click='onSort("filename")'>
-              By Filename
-            </button>
-            <button class='btn btn-sm btn-default' @click='onSort("age")'>
-              By Age
-            </button>
-            <div
-              @click="onClose"
-              class='btn btn-md pull-right'>
-              <span class='glyphicon glyphicon-remove'></span>
-            </div>
-            <div v-if='help' class='btn btn-sm pull-right'>
-              <span class='glyphicon glyphicon-info-sign'></span>
-              {{help}}
-            </div>
-          </div>
-          <div class="panel-body">
-            <div class="row asset-list">
-              <div class="col-xs-2" v-for="asset in assets">
-                <img
-                  class='asset'
-                  :class="{highlighted: highlight && highlight.id == asset.id}"
-                  :src="asset.thumb"
-                  @click="onSelect(asset.id)"
-                  @mouseover="onHighlight(asset.id)">
-                </img>
-              </div>
-            </div>
-          </div>
-          <div class="panel-footer">
-            {{info}}
-          </div>
-        </div>
-      </div>
     </script>
 
     <script type="text/x-template" id="layout-select">
