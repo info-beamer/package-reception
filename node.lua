@@ -844,7 +844,7 @@ local function playlist()
     end
 
     local function get_duration(page)
-        local duration = 10
+        local duration = node_config.auto_duration
         if page.duration == "auto" then
             if page.media.metadata.duration then
                 duration = tonumber(page.media.metadata.duration)

@@ -2,6 +2,22 @@
     "name": "Info Screen",
     "custom_ui": "config.html",
     "options": [{
+        "title": "Expert configuration",
+        "type": "section",
+        "intro": "Configuration options not exposed through the custom interface."
+     }, {
+        "title": "Auto duration",
+        "ui_width": 2,
+        "name": "auto_duration",
+        "type": "integer",
+        "default": 10
+     },
+
+     {
+        "title": "All other configuration options",
+        "type": "section",
+        "intro": "These settings can be modified through the normal custom interface. You should not edit them here. Instead click on the 'Info Screen' node on the left and edit these value in the resulting interface."
+     }, {
         "title": "Header",
         "ui_width": 4,
         "name": "header",
@@ -40,13 +56,11 @@
         "default": "en"
     }, {
         "title": "Audio",
-        "ui_width": 4,
+        "ui_width": 2,
         "name": "audio",
         "type": "boolean",
         "default": false
-    },
-        
-    {
+    }, {
         "title": "Pages",
         "name": "pages",
         "type": "list",
