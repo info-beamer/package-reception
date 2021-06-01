@@ -214,6 +214,10 @@
                 Add
                 <span class='glyphicon glyphicon-plus'></span>
               </button>
+              <button class='btn btn-default' @click="onAddMultiple(index)">
+                Add multiple..
+                <span class='glyphicon glyphicon-plus'></span>
+              </button>
               <br/>
               <br/>
             </div>
@@ -556,6 +560,10 @@
           uploaded: 1469007145+i,
         }
       }
+      MOCK_ASSET_CHOOSER_RESPONSE = [{
+        id: 'package.png',
+        duration: 10,
+      }]
       MOCK_NODE_ASSETS = {
         "package.png": {
           id: "package.png",
@@ -563,7 +571,7 @@
           filetype: 'image',
           filename: 'package.png',
         }
-      },
+      }
       MOCK_CONFIG = {
         header: 1,
         footer: "package.png",

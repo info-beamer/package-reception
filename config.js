@@ -46,6 +46,22 @@ const store = new Vuex.Store({
         state.config.pages.splice(0, 0, new_page);
       }
     },
+    create_pages(state, opt) {
+      var last_page = state.config.pages[opt.index];
+      for (var i = 0; i < opt.selected.length; i++) {
+        var select = opt.selected[i];
+        var new_page = {
+          media: select.id,
+          layout: "fullscreen",
+          duration: last_page.duration,
+          config: {},
+          schedule: {
+            hours: [],
+          }
+        }
+        state.config.pages.splice(opt.index+i+1, 0, new_page);
+      }
+    },
     set_option(state, {key, value}) {
       Vue.set(state.config, key, value);
     },
@@ -70,14 +86,17 @@ const store = new Vuex.Store({
   },
 
   actions: {
-    init (context, values) {
+    init(context, values) {
       context.commit('init', values);
     },
-    remove_page (context, index) {
+    remove_page(context, index) {
       context.commit('remove_page', index);
     },
-    create_page (context, index) {
+    create_page(context, index) {
       context.commit('create_page', index);
+    },
+    create_pages(context, opt) {
+      context.commit('create_pages', opt);
     },
     set_option(context, update) {
       context.commit('set_option', update);
@@ -137,6 +156,22 @@ Vue.component('config-ui', {
   methods: {
     onAdd(index) {
       this.$store.dispatch('create_page', index);
+    },
+    onAddMultiple(index) {
+      var that = this;
+      ib.assetChooser({
+        selected_asset_spec: this.asset_spec,
+        valid: ['image', 'video'],
+        features: ['image2k', 'h264'],
+        multi_select: true,
+      }).then(function(selected) {
+        if (selected) {
+          that.$store.dispatch('create_pages', {
+            index: index,
+            selected: selected,
+          })
+        }
+      })
     },
     onSetConfig(key, value) {
       this.$store.dispatch('set_option', {key: key, value: value});
