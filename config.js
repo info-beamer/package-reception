@@ -1,5 +1,9 @@
 'use strict';
 
+function deepcopy(o) {
+  return JSON.parse(JSON.stringify(o))
+}
+
 const store = new Vuex.Store({
   strict: true,
   state: {
@@ -25,6 +29,7 @@ const store = new Vuex.Store({
       var new_page = {
         media: "empty.png",
         layout: "fullscreen",
+        duration: "auto",
         config: {},
         schedule: {
           hours: [],
@@ -34,6 +39,8 @@ const store = new Vuex.Store({
         var last_page = state.config.pages[index];
         new_page.media = last_page.media;
         new_page.layout = last_page.layout;
+        new_page.duration = last_page.duration;
+        new_page.config = deepcopy(last_page.config);
         state.config.pages.splice(index+1, 0, new_page);
       } else {
         state.config.pages.splice(0, 0, new_page);
