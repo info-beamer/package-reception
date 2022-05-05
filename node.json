@@ -49,6 +49,7 @@
         "name": "language",
         "type": "select",
         "options": [
+            ["nl", "Dutch"],
             ["en", "English"],
             ["es", "Spanish"],
             ["de", "German"]

@@ -42,6 +42,7 @@ def send_clock(now, ts):
     # settings.
     if time_fmt.startswith('%a'):
         day_of_week = {
+            'nl': ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'],
             'en': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             'es': ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
             'de': ['Mo', 'Di',  'Mi', 'Do', 'Fr', 'Sa', 'So'],
