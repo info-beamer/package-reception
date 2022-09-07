@@ -11,6 +11,18 @@
         "name": "auto_duration",
         "type": "integer",
         "default": 10
+     }, {
+        "title": "Regular font",
+        "ui_width": 4,
+        "name": "font_regl",
+        "type": "font",
+        "default": "default-font.ttf"
+     }, {
+        "title": "Bold font",
+        "ui_width": 4,
+        "name": "font_bold",
+        "type": "font",
+        "default": "default-font-bold.ttf"
      },
 
      {

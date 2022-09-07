@@ -15,8 +15,7 @@ local IDLE_ASSET = "empty.png"
 local node_config = {}
 
 local overlay_debug = false
-local font_regl = resource.load_font "default-font.ttf"
-local font_bold = resource.load_font "default-font-bold.ttf"
+local font_regl, font_bold
 
 local overlays = {
     resource.create_colored_texture(1,0,0),
@@ -975,8 +974,10 @@ end
 local job_queue = JobQueue()
 local scheduler = Scheduler(playlist, job_queue)
 
-util.file_watch("config.json", function(raw)
-    node_config = json.decode(raw)
+util.json_watch("config.json", function(config)
+    node_config = config
+    font_regl = resource.load_font(config.font_regl.asset_name)
+    font_bold = resource.load_font(config.font_bold.asset_name)
 end)
 
 function node.render()
