@@ -3,7 +3,7 @@
     "author": "Florian Wesch <fw@info-beamer.com>",
     "desc": "Shows textual/image and video information for a reception-style information screen.",
     "repository": "https://github.com/info-beamer/package-reception",
-    "version": "0.4",
+    "version": "0.5",
     "platforms": ["pi/epoch-1", "pi/epoch-2"],
     "nesting": {
         "parents": ["top-level"],

@@ -110,7 +110,12 @@ adding your text in the new row.
 
 ## Changelog
 
-### Version 0.3
+### Version 0.5
+
+ * Now defaults to using the device's timezone. Use the device list to adjust a device's timezone.
+ * Layout adjustments for 720p and 4K.
+
+### Version 0.4
 
  * Compatible with the Pi4
 

@@ -1,4 +1,6 @@
 TIMEZONES = [
+    "Device timezone",
+    "",
     "UTC",
     "Europe/Berlin",
     "Europe/London",

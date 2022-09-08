@@ -8,7 +8,12 @@ from hosted import config, node
 
 config.restart_on_update()
 
-tz = pytz.timezone(config.timezone)
+timezone = config.timezone
+if timezone == "Device timezone":
+    timezone = config.metadata['timezone']
+print >>sys.stderr, "Using timezone %s" % (timezone,)
+
+tz = pytz.timezone(timezone)
 
 def current_time():
     now = datetime.utcnow()
@@ -45,7 +50,7 @@ def send_clock(now, ts):
             'nl': ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'],
             'en': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             'es': ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
-            'de': ['Mo', 'Di',  'Mi', 'Do', 'Fr', 'Sa', 'So'],
+            'de': ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'],
         }[config.language][now.weekday()]
         time_fmt = day_of_week + time_fmt[2:]
 

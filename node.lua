@@ -2,7 +2,7 @@ gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 
 node.alias "*" -- catch all communication
 
-util.noglobals()
+util.no_globals()
 
 local json = require "json"
 local easing = require "easing"
@@ -15,7 +15,7 @@ local IDLE_ASSET = "empty.png"
 local node_config = {}
 
 local overlay_debug = false
-local font_regl, font_bold
+local font_regl, font_bold, layout
 
 local overlays = {
     resource.create_colored_texture(1,0,0),
@@ -24,6 +24,36 @@ local overlays = {
     resource.create_colored_texture(1,0,1),
     resource.create_colored_texture(1,1,0),
     resource.create_colored_texture(0,1,1),
+}
+
+local LAYOUT_CONFIG = {
+    seven20 = {
+        top = 66,
+        bottom = 37,
+        clock_width = 300 * WIDTH/1920,
+
+        default_font_size = 25,
+        h1_font_size = 45,
+        h2_font_size = 30,
+    },
+    fullhd = {
+        top = 100,
+        bottom = 50,
+        clock_width = 300 * WIDTH/1920,
+
+        default_font_size = 35,
+        h1_font_size = 70,
+        h2_font_size = 50,
+    },
+    fourk = {
+        top = 200,
+        bottom = 100,
+        clock_width = 300 * WIDTH/1920,
+
+        default_font_size = 70,
+        h1_font_size = 150,
+        h2_font_size = 100,
+    },
 }
 
 local function in_epsilon(a, b, e)
@@ -477,12 +507,8 @@ local function Markup(config)
     local writes = {}
 
     local CELL_PADDING = 40
-    local PARAGRAPH_SPLIT = 40
+    local PARAGRAPH_SPLIT = layout.default_font_size
     local LINE_HEIGHT = 1.05
-
-    local DEFAULT_FONT_SIZE = 35
-    local H1_FONT_SIZE = 70
-    local H2_FONT_SIZE = 50
 
     local function max_per_line(font, size, width)
         -- try to calculate the max characters/line
@@ -519,7 +545,7 @@ local function Markup(config)
                 end
                 x = x + max_w[ci]+CELL_PADDING
             end
-            y = y + DEFAULT_FONT_SIZE * LINE_HEIGHT
+            y = y + layout.default_font_size * LINE_HEIGHT
             max_x = max(max_x, x-CELL_PADDING)
         end
         rows = {}
@@ -534,7 +560,7 @@ local function Markup(config)
     local function layout_paragraph(paragraph)
         for line in string.gmatch(paragraph, "[^\n]+") do
             local font = font_regl
-            local size = DEFAULT_FONT_SIZE -- font size for line
+            local size = layout.default_font_size -- font size for line
             local maxl = max_per_line(font, size, width)
 
             if line:find "|" then
@@ -558,12 +584,12 @@ local function Markup(config)
                 if line:sub(1,2) == "##" then
                     line = line:sub(3)
                     font = font_bold
-                    size = H2_FONT_SIZE
+                    size = layout.h2_font_size
                     maxl = max_per_line(font, size, width)
                 elseif line:sub(1,1) == "#" then
                     line = line:sub(2)
                     font = font_bold
-                    size = H1_FONT_SIZE
+                    size = layout.h1_font_size
                     maxl = max_per_line(font, size, width)
                 end
 
@@ -755,31 +781,31 @@ local function playlist()
     end
 
     local function tile_fullscreen(s, e, now)
-        return 0, 0, WIDTH, HEIGHT-50
+        return 0, 0, WIDTH, HEIGHT-layout.bottom
     end
 
     local function tile_top(s, e, now)
-        return 0, 0, WIDTH, 100
+        return 0, 0, WIDTH, layout.top
     end
 
     local function tile_bottom(s, e, now)
-        return 0, HEIGHT-50, WIDTH, HEIGHT
+        return 0, HEIGHT-layout.bottom, WIDTH, HEIGHT
     end
 
     local function tile_bottom_scroller(s, e, now)
-        return 300, HEIGHT-50, WIDTH, HEIGHT
+        return layout.clock_width, HEIGHT-layout.bottom, WIDTH, HEIGHT
     end
 
     local function tile_bottom_clock(s, e, now)
-        return 0, HEIGHT-50, 300, HEIGHT
+        return 0, HEIGHT-layout.bottom, layout.clock_width, HEIGHT
     end
 
     local function tile_right(s, e, now)
-        return WIDTH/2, 100, WIDTH, HEIGHT-50
+        return WIDTH/2, layout.top, WIDTH, HEIGHT-layout.bottom
     end
 
     local function tile_left(s, e, now)
-        return 0, 100, WIDTH/2, HEIGHT-50
+        return 0, layout.top, WIDTH/2, HEIGHT-layout.bottom
     end
 
     local function add_info_bar(page, duration)
@@ -978,6 +1004,21 @@ util.json_watch("config.json", function(config)
     node_config = config
     font_regl = resource.load_font(config.font_regl.asset_name)
     font_bold = resource.load_font(config.font_bold.asset_name)
+
+    local selected_layout
+    if config.layout == 'auto' then
+        if WIDTH >= 2880 then
+            selected_layout = 'fourk'
+        elseif WIDTH <= 1600 then
+            selected_layout = 'seven20'
+        else
+            selected_layout = 'fullhd'
+        end
+    else
+        selected_layout = config.layout
+    end
+    print('selected layout:', selected_layout)
+    layout = LAYOUT_CONFIG[selected_layout]
 end)
 
 function node.render()

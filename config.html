@@ -96,6 +96,9 @@
       .img-shadow {
         box-shadow: 0px 0px 40px 4px rgba(0,0,0,0.1);
       }
+      select option {
+        text-align: left;
+      }
     </style>
   </head>
   <body>
@@ -236,7 +239,6 @@
             class='btn btn-default'
             @change="onDurationChange">
             <option
-              class='text-left'
               v-for="duration in durations"
               :value="duration.key"
               :selected="page.duration == duration.key">
@@ -494,7 +496,6 @@
         class='btn btn-default'
         @change="onSelect">
         <option
-          class='text-left'
           v-for="option in options"
           :value="option.value"
           :selected="option.value == layout">
@@ -508,7 +509,6 @@
         class='btn btn-default'
         @change="onSelect">
         <option
-          class='text-left'
           v-for="tz in timezones"
           :key="tz"
           :selected="timezone == tz">

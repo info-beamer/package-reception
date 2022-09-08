@@ -6,11 +6,17 @@
         "type": "section",
         "intro": "Configuration options not exposed through the custom interface."
      }, {
-        "title": "Auto duration",
-        "ui_width": 2,
-        "name": "auto_duration",
-        "type": "integer",
-        "default": 10
+        "title": "Layout",
+        "ui_width": 4,
+        "name": "layout",
+        "type": "select",
+        "options": [
+            ["auto", "Auto (default)"],
+            ["fourk", "Optimized for 4K"],
+            ["fullhd", "Optimized for FullHD"],
+            ["seven20", "Optimized for 720p"]
+        ],
+        "default": "auto"
      }, {
         "title": "Regular font",
         "ui_width": 4,
@@ -23,6 +29,12 @@
         "name": "font_bold",
         "type": "font",
         "default": "default-font-bold.ttf"
+     }, {
+        "title": "Auto duration",
+        "ui_width": 2,
+        "name": "auto_duration",
+        "type": "integer",
+        "default": 10
      },
 
      {
@@ -48,7 +60,7 @@
         "ui_width": 4,
         "name": "timezone",
         "type": "string",
-        "default": "UTC"
+        "default": "Device timezone"
     }, {
         "title": "Time Format",
         "ui_width": 4,
