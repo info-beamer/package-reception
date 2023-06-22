@@ -110,6 +110,11 @@ adding your text in the new row.
 
 ## Changelog
 
+### Version 0.6
+
+ * Fix potential issue when running on fast devices. Due to an initially missing system
+   time at device start, content scheduling can get confused.
+
 ### Version 0.5
 
  * Now defaults to using the device's timezone. Use the device list to adjust a device's timezone.
