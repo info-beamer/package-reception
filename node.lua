@@ -144,7 +144,6 @@ local function Clock()
     local base_day = 0
     local base_week = 0
     local human_time = ""
-    local unix_diff = 0
 
     util.data_mapper{
         ["clock/since_midnight"] = function(since_midnight)
@@ -170,25 +169,10 @@ local function Clock()
         return human_time
     end
 
-    local function unix()
-        local now = sys.now()
-        if now == 0 then
-            return os.time()
-        end
-        if unix_diff == 0 then
-            local ts = os.time()
-            if ts > 1000000 then
-                unix_diff = ts - sys.now()
-            end
-        end
-        return now + unix_diff
-    end
-
     return {
         day_of_week = day_of_week;
         hour_of_week = hour_of_week;
         human = human;
-        unix = unix;
     }
 end
 
@@ -706,8 +690,7 @@ end
 
 
 local function Scheduler(playlist_source, job_queue)
-    local global_synced = false
-    local scheduled_until = clock.unix()
+    local scheduled_until = sys.now()
     local next_schedule = 0
 
     local TOLERANCE = 0.05
@@ -734,19 +717,9 @@ local function Scheduler(playlist_source, job_queue)
             job_queue.add(item.fn, starts, ends, item.coord)
         end
 
-        local base
-        if global_synced then
-            -- We're called during the current cycle (due to
-            -- the SCHEDULE_LOOKAHEAD offset from the last
-            -- item in the current cycle). Therefore offset
-            -- by one so we have the next cycle.
-            local cycle = floor(now / total_duration) + 1
-            base = cycle * total_duration
-        else
-            base = scheduled_until
-        end
+        local base = scheduled_until
 
-        print("base unix time is", base)
+        print("base time is", base)
             
         for idx = 1, #playlist do
             local item = playlist[idx]
@@ -1023,7 +996,7 @@ end)
 
 function node.render()
     gl.clear(0, 0, 0, 1)
-    local now = clock.unix()
+    local now = sys.now()
     scheduler.tick(now)
 
     local fov = math.atan2(HEIGHT, WIDTH*2) * 360 / math.pi
